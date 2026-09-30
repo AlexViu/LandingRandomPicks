@@ -6,6 +6,7 @@ interface Props {
 const { title = 'RandomPicks — Servidor CS2 Minigames | Bhop, Rangos y Tienda de Skins', description = 'Servidor de CS2 con minigames, bhop, sistema de rangos y tienda de skins. Comunidad española en Discord. Conéctate gratis: cs2.randompicks.es:27015' } = Astro.props;
 const url = 'https://randompicks.es';
 const ogImage = `${url}/random_picks_logo.jpg`;
+const canonical = new URL(Astro.url.pathname, url).href;
 ---
 <!doctype html>
 <html lang="es">
@@ -23,11 +24,11 @@ const ogImage = `${url}/random_picks_logo.jpg`;
     <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
     <meta name="author" content="RandomPicks CS2" />
     <meta name="theme-color" content="#FF6B2B" />
-    <link rel="canonical" href={url} />
+    <link rel="canonical" href={canonical} />
 
     <!-- Open Graph (WhatsApp, Facebook, Discord) -->
     <meta property="og:type" content="website" />
-    <meta property="og:url" content={url} />
+    <meta property="og:url" content={canonical} />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:image" content={ogImage} />
