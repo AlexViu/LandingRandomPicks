@@ -12,6 +12,8 @@
     "astro": "astro"
   },
   "dependencies": {
-    "astro": "^6.4.3"
+    "@astrojs/node": "^10.1.4",
+    "astro": "^6.4.3",
+    "mysql2": "^3.24.5"
   }
 }
