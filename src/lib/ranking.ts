@@ -1,7 +1,7 @@
 // Ranking de SharpTimer (bhop/surf), leído en SOLO LECTURA de la misma base de
 // datos MariaDB que usa el plugin y el bot de Discord (sharptimer-bot).
 // Las consultas y el sistema de puntos son exactamente los del bot (/top, /maptop,
-// /rank, /maps), para que la web y Discord muestren siempre lo mismo.
+// /pb, /rank, /maps), para que la web y Discord muestren siempre lo mismo.
 //
 // Configuración por variables de entorno (en runtime, no en build):
 //   RANKING_DB_HOST, RANKING_DB_PORT, RANKING_DB_USER, RANKING_DB_PASSWORD, RANKING_DB_NAME
@@ -13,6 +13,7 @@ export interface TopRow { steamId: string; name: string; points: number; }
 export interface PlayerRow extends TopRow { position: number; }
 export interface MapTimeRow { name: string; time: string; finishes: number; }
 export interface MapRow { map: string; players: number; }
+export interface PbRow { name: string; steamId: string; time: string; finishes: number; position: number; total: number; }
 
 const CACHE_MS = 60_000;
 
@@ -104,6 +105,32 @@ export function fetchMapTop(map: string, limit: number): Promise<MapTimeRow[]> {
       [map, limit],
     );
     return rows.map((r) => ({ name: r.PlayerName, time: r.FormattedTime, finishes: Number(r.TimesFinished) }));
+  });
+}
+
+// Igual que /pb del bot: PB de un jugador en un mapa y su puesto en ese mapa.
+export function fetchPlayerPbOnMap(map: string, search: string): Promise<PbRow[]> {
+  const bySteamId = /^\d{15,}$/.test(search);
+  return cached(`pb:${map}:${search.toLowerCase()}`, async () => {
+    const rows = await query(
+      `WITH ranked AS (
+         SELECT SteamID, PlayerName, FormattedTime, TimesFinished,
+                RANK() OVER (ORDER BY TimerTicks ASC) AS Position,
+                COUNT(*) OVER () AS TotalPlayers
+         FROM PlayerRecords
+         WHERE MapName = ?
+       )
+       SELECT PlayerName, SteamID, FormattedTime, TimesFinished, Position, TotalPlayers
+       FROM ranked
+       WHERE ${bySteamId ? 'SteamID = ?' : 'PlayerName LIKE ?'}
+       ORDER BY Position ASC
+       LIMIT 10`,
+      [map, bySteamId ? search : `%${search}%`],
+    );
+    return rows.map((r) => ({
+      name: r.PlayerName, steamId: String(r.SteamID), time: r.FormattedTime,
+      finishes: Number(r.TimesFinished), position: Number(r.Position), total: Number(r.TotalPlayers),
+    }));
   });
 }
 

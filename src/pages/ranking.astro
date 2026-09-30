@@ -1,44 +1,51 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import { fetchGlobalTop, fetchMapTop, fetchMaps, fetchPlayerRank } from '../lib/ranking';
-import type { MapRow, MapTimeRow, PlayerRow, TopRow } from '../lib/ranking';
+import { fetchGlobalTop, fetchMapTop, fetchMaps, fetchPlayerPbOnMap, fetchPlayerRank } from '../lib/ranking';
+import type { MapRow, MapTimeRow, PbRow, PlayerRow, TopRow } from '../lib/ranking';
 
 // Se renderiza en cada petición (datos en vivo, con caché de 60 s en el servidor).
 export const prerender = false;
 
-const TOP_N = 50;
+// Mismo formato que las respuestas del bot de Discord (sharptimer-bot): cada bloque
+// replica un comando (/top, /rank, /maptop, /pb, /maps) con sus textos y colores.
+const TOP_N = 10; // DEFAULT_TOP_N del bot
 const search = (Astro.url.searchParams.get('q') ?? '').trim().slice(0, 64);
-const mapParam = (Astro.url.searchParams.get('map') ?? '').trim();
+const mapParam = (Astro.url.searchParams.get('map') ?? '').trim().slice(0, 128);
 
 let top: TopRow[] = [];
 let maps: MapRow[] = [];
 let mapTop: MapTimeRow[] = [];
+let pbs: PbRow[] = [];
 let players: PlayerRow[] = [];
-let selectedMap = '';
+let suggestions: string[] = [];
 let failed = false;
 
 try {
   [top, maps] = await Promise.all([fetchGlobalTop(TOP_N), fetchMaps()]);
-  if (maps.some((m) => m.map === mapParam)) {
-    selectedMap = mapParam;
-    mapTop = await fetchMapTop(selectedMap, TOP_N);
+  if (mapParam) {
+    if (maps.some((m) => m.map === mapParam)) {
+      mapTop = await fetchMapTop(mapParam, TOP_N);
+      if (search) pbs = await fetchPlayerPbOnMap(mapParam, search);
+    } else {
+      suggestions = maps.map((m) => m.map).filter((m) => m.toLowerCase().includes(mapParam.toLowerCase())).slice(0, 5);
+    }
+  } else if (search) {
+    players = await fetchPlayerRank(search);
   }
-  if (search) players = await fetchPlayerRank(search);
 } catch (err) {
   console.error('[ranking] error leyendo la base de datos de SharpTimer:', err);
   failed = true;
 }
 
-const medal = (pos: number) => (pos === 1 ? '🥇' : pos === 2 ? '🥈' : pos === 3 ? '🥉' : `#${pos}`);
-const steamUrl = (id: string) => `https://steamcommunity.com/profiles/${id}`;
-const fmt = (n: number) => n.toLocaleString('es-ES');
+const MEDALS = ['🥇', '🥈', '🥉'];
+const mapHref = (m: string) => `/ranking?map=${encodeURIComponent(m)}`;
 
 Astro.response.headers.set('Cache-Control', 'public, max-age=60');
 ---
 
 <Layout
   title="Ranking Bhop — RandomPicks CS2"
-  description="Ranking global de bhop del servidor RandomPicks de CS2: puntos, mejores tiempos por mapa y búsqueda de jugadores. Actualizado en directo."
+  description="Ranking global de bhop del servidor RandomPicks de CS2: puntos, mejores tiempos por mapa y búsqueda de jugadores. El mismo ranking que el bot de Discord, en directo."
 >
   <nav>
     <div class="nav-inner">
@@ -62,105 +69,130 @@ Astro.response.headers.set('Cache-Control', 'public, max-age=60');
       <div class="section-tag" data-i18n="rk-tag">RANKING BHOP</div>
       <h1 class="rk-title" data-i18n="rk-title">Los más rápidos del servidor</h1>
       <p class="rk-sub" data-i18n="rk-sub">
-        En cada mapa, el mejor tiempo suma 1000 puntos y el resto, menos según su puesto. Es el mismo ranking que el bot de Discord.
+        El mismo ranking que el bot de Discord (/top, /maptop, /pb, /rank y /maps), en directo desde el servidor.
       </p>
     </header>
 
+    <form class="rk-search" method="get" action="/ranking">
+      <input
+        type="search" name="q" value={search} maxlength="64"
+        placeholder="Jugador o SteamID64" data-i18n-placeholder="rk-search-ph" aria-label="Jugador"
+      />
+      <select name="map" aria-label="Mapa">
+        <option value="" data-i18n="rk-all-maps">Todos los mapas</option>
+        {maps.map((m) => <option value={m.map} selected={m.map === mapParam}>{m.map}</option>)}
+      </select>
+      <button type="submit" data-i18n="rk-search-btn">Buscar</button>
+      {(search || mapParam) && <a class="rk-clear" href="/ranking" data-i18n="rk-clear">Limpiar</a>}
+    </form>
+
     {failed ? (
-      <div class="rk-card rk-empty" data-i18n="rk-error">
-        El ranking no está disponible ahora mismo. Vuelve a intentarlo en unos minutos.
+      <div class="embed" style="--accent: #ed4245">
+        <p class="embed-desc">Error leyendo la base. El ranking no está disponible ahora mismo, vuelve a intentarlo en unos minutos.</p>
       </div>
     ) : (
-      <>
-        <form class="rk-search" method="get" action="/ranking">
-          <input
-            type="search" name="q" value={search} maxlength="64"
-            placeholder="Busca un jugador o SteamID64" data-i18n-placeholder="rk-search-ph"
-            aria-label="Buscar jugador"
-          />
-          {selectedMap && <input type="hidden" name="map" value={selectedMap} />}
-          <button type="submit" data-i18n="rk-search-btn">Buscar</button>
-        </form>
-
-        {search && (
-          <section class="rk-card">
-            <h2 class="rk-card-title"><span data-i18n="rk-results">Resultados para</span> “{search}”</h2>
-            {players.length === 0 ? (
-              <p class="rk-empty-line" data-i18n="rk-no-player">No hay ningún jugador con ese nombre en el ranking.</p>
+      <div class="rk-grid">
+        <div class="rk-col">
+          {/* /rank <jugador> */}
+          {search && !mapParam && (
+            players.length === 0 ? (
+              <div class="embed-msg">No encontré a ningún jugador que coincida con <code>{search}</code>.</div>
+            ) : players.length === 1 ? (
+              <div class="embed-msg">
+                <strong>{players[0].name}</strong> está en la posición <strong>#{players[0].position}</strong> con <strong>{players[0].points} puntos</strong>.
+              </div>
             ) : (
-              <table class="rk-table">
-                <thead><tr><th>#</th><th data-i18n="rk-col-player">Jugador</th><th class="num" data-i18n="rk-col-points">Puntos</th></tr></thead>
-                <tbody>
-                  {players.map((p) => (
-                    <tr>
-                      <td class="pos">{medal(p.position)}</td>
-                      <td><a href={steamUrl(p.steamId)} target="_blank" rel="noopener">{p.name}</a></td>
-                      <td class="num">{fmt(p.points)}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            )}
-          </section>
-        )}
-
-        <div class="rk-grid">
-          <section class="rk-card">
-            <h2 class="rk-card-title" data-i18n="rk-global">Ranking global</h2>
-            {top.length === 0 ? (
-              <p class="rk-empty-line" data-i18n="rk-no-records">Todavía no hay tiempos registrados.</p>
-            ) : (
-              <table class="rk-table">
-                <thead><tr><th>#</th><th data-i18n="rk-col-player">Jugador</th><th class="num" data-i18n="rk-col-points">Puntos</th></tr></thead>
-                <tbody>
-                  {top.map((p, i) => (
-                    <tr class={i < 3 ? 'podium' : ''}>
-                      <td class="pos">{medal(i + 1)}</td>
-                      <td><a href={steamUrl(p.steamId)} target="_blank" rel="noopener">{p.name}</a></td>
-                      <td class="num">{fmt(p.points)}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            )}
-          </section>
-
-          <section class="rk-card">
-            <h2 class="rk-card-title" data-i18n="rk-by-map">Mejores tiempos por mapa</h2>
-            <form class="rk-map-form" method="get" action="/ranking">
-              <select name="map" aria-label="Mapa" onchange="this.form.submit()">
-                <option value="" data-i18n="rk-pick-map">Elige un mapa…</option>
-                {maps.map((m) => (
-                  <option value={m.map} selected={m.map === selectedMap}>{m.map} ({m.players})</option>
+              <div class="embed-msg">
+                Encontré {players.length} jugadores que coinciden con <code>{search}</code>, sé más específico:
+                {players.map((p) => (
+                  <div class="line"><code>#{p.position}</code> <strong>{p.name}</strong> — {p.points} pts</div>
                 ))}
-              </select>
-              {search && <input type="hidden" name="q" value={search} />}
-              <noscript><button type="submit">OK</button></noscript>
-            </form>
-            {selectedMap ? (
-              mapTop.length === 0 ? (
-                <p class="rk-empty-line" data-i18n="rk-no-records">Todavía no hay tiempos registrados.</p>
-              ) : (
-                <table class="rk-table">
-                  <thead><tr><th>#</th><th data-i18n="rk-col-player">Jugador</th><th class="num" data-i18n="rk-col-time">Tiempo</th><th class="num" data-i18n="rk-col-finishes">Completado</th></tr></thead>
-                  <tbody>
-                    {mapTop.map((r, i) => (
-                      <tr class={i < 3 ? 'podium' : ''}>
-                        <td class="pos">{medal(i + 1)}</td>
-                        <td>{r.name}</td>
-                        <td class="num mono">{r.time}</td>
-                        <td class="num">{r.finishes}×</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              )
+              </div>
+            )
+          )}
+
+          {/* /top */}
+          <section class="embed" style="--accent: #f1c40f">
+            <h2 class="embed-title">🏆 Ranking Global - SharpTimer</h2>
+            {top.length === 0 ? (
+              <p class="embed-desc">No hay datos todavía.</p>
             ) : (
-              <p class="rk-empty-line" data-i18n="rk-map-hint">Selecciona un mapa para ver su top de tiempos.</p>
+              <>
+                <div class="embed-desc">
+                  {top.map((p, i) => (
+                    <div class="line">
+                      {i < 3 ? MEDALS[i] : <code>#{i + 1}</code>} <strong>{p.name || 'Desconocido'}</strong> — {p.points} pts
+                    </div>
+                  ))}
+                </div>
+                <p class="embed-footer">Mostrando top {top.length} | Puntos por posición relativa en cada mapa</p>
+              </>
             )}
           </section>
         </div>
-      </>
+
+        <div class="rk-col">
+          {/* /pb <mapa> <jugador> */}
+          {mapParam && search && mapTop.length > 0 && (
+            pbs.length === 0 ? (
+              <div class="embed-msg">No encontré ningún tiempo de <code>{search}</code> en el mapa <code>{mapParam}</code>.</div>
+            ) : pbs.length === 1 ? (
+              <div class="embed-msg">
+                <strong>{pbs[0].name}</strong> en <code>{mapParam}</code>: <strong>{pbs[0].time}</strong> — posición <strong>#{pbs[0].position}/{pbs[0].total}</strong> ({pbs[0].finishes} runs)
+              </div>
+            ) : (
+              <div class="embed-msg">
+                Encontré {pbs.length} jugadores que coinciden con <code>{search}</code> en <code>{mapParam}</code>, sé más específico:
+                {pbs.map((p) => (
+                  <div class="line"><code>#{p.position}/{p.total}</code> <strong>{p.name}</strong> — {p.time}</div>
+                ))}
+              </div>
+            )
+          )}
+
+          {/* /maptop <mapa> */}
+          {mapParam && (
+            mapTop.length === 0 ? (
+              <div class="embed-msg">
+                No encontré records para el mapa <code>{mapParam}</code>.
+                {suggestions.length > 0 && (
+                  <div class="line">¿Quizás quisiste decir: {suggestions.map((m, i) => (<>{i > 0 && ', '}<a href={mapHref(m)}>{m}</a></>))}?</div>
+                )}
+              </div>
+            ) : (
+              <section class="embed" style="--accent: #3498db">
+                <h2 class="embed-title">⏱️ Top tiempos - {mapParam}</h2>
+                <div class="embed-desc">
+                  {mapTop.map((r, i) => (
+                    <div class="line">
+                      {i < 3 ? MEDALS[i] : <code>#{i + 1}</code>} <strong>{r.name || 'Desconocido'}</strong> — {r.time} ({r.finishes} runs)
+                    </div>
+                  ))}
+                </div>
+              </section>
+            )
+          )}
+
+          {/* /maps */}
+          <section class="embed" style="--accent: #2ecc71">
+            <h2 class="embed-title">🗺️ Mapas con records ({maps.length} en total)</h2>
+            {maps.length === 0 ? (
+              <p class="embed-desc">No hay mapas con records todavía.</p>
+            ) : (
+              <>
+                <div class="embed-desc maps-list">
+                  {maps.map((m) => (
+                    <div class="line">
+                      <a href={mapHref(m.map)} class={m.map === mapParam ? 'active' : ''}><strong>{m.map}</strong></a> — {m.players} jugador{m.players !== 1 ? 'es' : ''}
+                    </div>
+                  ))}
+                </div>
+                <p class="embed-footer" data-i18n="rk-maps-hint">Pulsa un mapa para ver su top de tiempos</p>
+              </>
+            )}
+          </section>
+        </div>
+      </div>
     )}
 
     <p class="rk-footnote">
@@ -173,24 +205,16 @@ Astro.response.headers.set('Cache-Control', 'public, max-age=60');
     var t = {
       es: {
         'rk-back': '← Volver al inicio', 'rk-tag': 'RANKING BHOP', 'rk-title': 'Los más rápidos del servidor',
-        'rk-sub': 'En cada mapa, el mejor tiempo suma 1000 puntos y el resto, menos según su puesto. Es el mismo ranking que el bot de Discord.',
-        'rk-error': 'El ranking no está disponible ahora mismo. Vuelve a intentarlo en unos minutos.',
-        'rk-search-ph': 'Busca un jugador o SteamID64', 'rk-search-btn': 'Buscar', 'rk-results': 'Resultados para',
-        'rk-no-player': 'No hay ningún jugador con ese nombre en el ranking.',
-        'rk-global': 'Ranking global', 'rk-by-map': 'Mejores tiempos por mapa', 'rk-pick-map': 'Elige un mapa…',
-        'rk-map-hint': 'Selecciona un mapa para ver su top de tiempos.', 'rk-no-records': 'Todavía no hay tiempos registrados.',
-        'rk-col-player': 'Jugador', 'rk-col-points': 'Puntos', 'rk-col-time': 'Tiempo', 'rk-col-finishes': 'Completado',
+        'rk-sub': 'El mismo ranking que el bot de Discord (/top, /maptop, /pb, /rank y /maps), en directo desde el servidor.',
+        'rk-search-ph': 'Jugador o SteamID64', 'rk-all-maps': 'Todos los mapas', 'rk-search-btn': 'Buscar', 'rk-clear': 'Limpiar',
+        'rk-maps-hint': 'Pulsa un mapa para ver su top de tiempos',
         'rk-footnote': 'Se actualiza cada minuto · Conéctate y entra en el ranking:',
       },
       en: {
         'rk-back': '← Back to home', 'rk-tag': 'BHOP RANKING', 'rk-title': 'The fastest players on the server',
-        'rk-sub': 'On each map the best time is worth 1000 points and the rest get less depending on their position. Same ranking as the Discord bot.',
-        'rk-error': 'The ranking is not available right now. Please try again in a few minutes.',
-        'rk-search-ph': 'Search a player or SteamID64', 'rk-search-btn': 'Search', 'rk-results': 'Results for',
-        'rk-no-player': 'No player with that name in the ranking.',
-        'rk-global': 'Global ranking', 'rk-by-map': 'Best times by map', 'rk-pick-map': 'Pick a map…',
-        'rk-map-hint': 'Select a map to see its top times.', 'rk-no-records': 'No times recorded yet.',
-        'rk-col-player': 'Player', 'rk-col-points': 'Points', 'rk-col-time': 'Time', 'rk-col-finishes': 'Finished',
+        'rk-sub': 'The same ranking as the Discord bot (/top, /maptop, /pb, /rank and /maps), live from the server.',
+        'rk-search-ph': 'Player or SteamID64', 'rk-all-maps': 'All maps', 'rk-search-btn': 'Search', 'rk-clear': 'Clear',
+        'rk-maps-hint': 'Click a map to see its top times',
         'rk-footnote': 'Updated every minute · Connect and join the ranking:',
       },
     };
@@ -263,50 +287,51 @@ Astro.response.headers.set('Cache-Control', 'public, max-age=60');
   .lang-toggle:hover .lang-inactive { color: var(--text); }
 
   .ranking-page { max-width: 1200px; margin: 0 auto; padding: 112px 24px 72px; }
-  .rk-header { text-align: center; margin-bottom: 40px; animation: fadeInUp 0.6s ease both; }
+  .rk-header { text-align: center; margin-bottom: 36px; animation: fadeInUp 0.6s ease both; }
   .section-tag { font-size: 0.75rem; font-weight: 700; letter-spacing: 0.2em; color: var(--orange); margin-bottom: 12px; }
   .rk-title { font-size: clamp(2rem, 4vw, 3rem); color: var(--text); margin-bottom: 12px; line-height: 1.1; }
-  .rk-sub { color: var(--muted); max-width: 560px; margin: 0 auto; }
+  .rk-sub { color: var(--muted); max-width: 580px; margin: 0 auto; }
 
-  .rk-search { display: flex; gap: 10px; max-width: 560px; margin: 0 auto 32px; }
-  .rk-search input, .rk-map-form select {
-    flex: 1; min-width: 0; background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
+  .rk-search { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; max-width: 760px; margin: 0 auto 32px; }
+  .rk-search input, .rk-search select {
+    flex: 1 1 200px; min-width: 0; background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
     color: var(--text); font: inherit; padding: 11px 14px; outline: none; transition: border-color 0.2s;
   }
-  .rk-search input:focus, .rk-map-form select:focus { border-color: var(--orange); }
+  .rk-search select { cursor: pointer; }
+  .rk-search input:focus, .rk-search select:focus { border-color: var(--orange); }
   .rk-search button {
-    background: var(--orange); color: #fff; border: none; border-radius: 10px; padding: 0 22px;
+    background: var(--orange); color: #fff; border: none; border-radius: 10px; padding: 11px 22px;
     font: inherit; font-weight: 600; cursor: pointer; transition: background 0.2s;
   }
   .rk-search button:hover { background: var(--orange-dim); }
+  .rk-clear { color: var(--muted); font-size: 0.88rem; text-decoration: none; }
+  .rk-clear:hover { color: var(--text); }
 
   .rk-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; align-items: start; }
-  .rk-card {
-    background: var(--surface); border: 1px solid var(--border); border-radius: 14px;
-    padding: 24px; margin-bottom: 20px; animation: fadeInUp 0.6s ease both;
-  }
-  .rk-grid .rk-card { margin-bottom: 0; }
-  .rk-card-title { font-size: 1.35rem; color: var(--text); margin-bottom: 16px; }
-  .rk-map-form { display: flex; margin-bottom: 16px; }
-  .rk-map-form select { cursor: pointer; }
-  .rk-empty { text-align: center; color: var(--muted); padding: 48px 24px; }
-  .rk-empty-line { color: var(--muted); font-size: 0.92rem; }
+  .rk-col { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
 
-  .rk-table { width: 100%; border-collapse: collapse; font-size: 0.92rem; }
-  .rk-table th {
-    text-align: left; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
-    color: var(--muted); padding: 0 10px 10px; border-bottom: 1px solid var(--border);
+  /* ── Embeds al estilo Discord ── */
+  .embed, .embed-msg {
+    --embed-bg: #2b2d31;
+    background: var(--embed-bg); border-radius: 4px; color: #dbdee1;
+    font-size: 0.95rem; line-height: 1.55; overflow-wrap: anywhere;
+    animation: fadeInUp 0.5s ease both;
   }
-  .rk-table td { padding: 10px; border-bottom: 1px solid var(--border); overflow-wrap: anywhere; }
-  .rk-table tr:last-child td { border-bottom: none; }
-  .rk-table tbody tr:hover { background: var(--surface2); }
-  .rk-table .num { text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
-  .rk-table .mono { font-family: ui-monospace, 'Cascadia Code', Consolas, monospace; }
-  .rk-table .pos { width: 48px; color: var(--muted); font-weight: 600; white-space: nowrap; }
-  .rk-table .podium td { font-weight: 600; }
-  .rk-table .podium .num:last-child { color: var(--orange); }
-  .rk-table a { color: var(--text); text-decoration: none; }
-  .rk-table a:hover { color: var(--orange); }
+  .embed { border-left: 4px solid var(--accent); padding: 12px 16px 14px 12px; }
+  .embed-msg { background: transparent; padding: 4px 2px; }
+  .embed-title { font-family: 'Inter', sans-serif; font-size: 1rem; font-weight: 700; color: #f2f3f5; letter-spacing: 0; margin-bottom: 8px; }
+  .embed-desc .line, .embed-msg .line { margin-top: 2px; }
+  .embed strong, .embed-msg strong { color: #f2f3f5; font-weight: 700; }
+  .embed code, .embed-msg code {
+    font-family: ui-monospace, 'Cascadia Code', Consolas, monospace; font-size: 0.85em;
+    background: #1e1f22; border-radius: 3px; padding: 1px 4px;
+  }
+  .embed-footer { margin-top: 8px; font-size: 0.75rem; color: #949ba4; }
+  .embed a, .embed-msg a { color: #00a8fc; text-decoration: none; }
+  .embed a:hover, .embed-msg a:hover { text-decoration: underline; }
+  .embed a strong { color: inherit; }
+  .embed a.active strong { color: var(--orange); }
+  .maps-list { max-height: 520px; overflow-y: auto; padding-right: 6px; }
 
   .rk-footnote { text-align: center; color: var(--muted); font-size: 0.85rem; margin-top: 40px; }
   .rk-footnote code { color: var(--orange); margin-left: 6px; }
@@ -318,9 +343,7 @@ Astro.response.headers.set('Cache-Control', 'public, max-age=60');
     .nav-inner { padding: 0 16px; }
     .lang-sep, .lang-inactive { display: none; }
     .ranking-page { padding: 96px 16px 56px; }
-    .rk-card { padding: 18px 14px; }
-    .rk-table { font-size: 0.85rem; }
-    .rk-table th, .rk-table td { padding-left: 6px; padding-right: 6px; }
+    .embed { font-size: 0.9rem; }
     .rk-footnote code { display: block; margin: 6px 0 0; }
   }
 </style>
