@@ -1,13 +1,11 @@
-// Ranking de SharpTimer (bhop/surf), leído en SOLO LECTURA de la misma base de
-// datos MariaDB que usa el plugin y el bot de Discord (sharptimer-bot).
-// Las consultas y el sistema de puntos son exactamente los del bot (/top, /maptop,
-// /pb, /rank, /maps), para que la web y Discord muestren siempre lo mismo.
+// Ranking de SharpTimer (bhop/surf), vía la ranking API
+// (https://github.com/josesilvaruiz/sharptimer-ranking-api), que es la única que toca
+// la base de datos MariaDB de SharpTimer — el mismo bot de Discord (sharptimer-bot)
+// la consume igual, para que la web y Discord muestren siempre lo mismo.
 //
 // Configuración por variables de entorno (en runtime, no en build):
-//   RANKING_DB_HOST, RANKING_DB_PORT, RANKING_DB_USER, RANKING_DB_PASSWORD, RANKING_DB_NAME
-
-import mysql from 'mysql2/promise';
-import type { Pool, RowDataPacket } from 'mysql2/promise';
+//   RANKING_API_URL (p.ej. http://ranking-api.ranking-api.svc.cluster.local:8088)
+//   RANKING_API_KEY
 
 export interface TopRow { steamId: string; name: string; points: number; }
 export interface PlayerRow extends TopRow { position: number; }
@@ -15,133 +13,34 @@ export interface MapTimeRow { name: string; time: string; finishes: number; }
 export interface MapRow { map: string; players: number; }
 export interface PbRow { name: string; steamId: string; time: string; finishes: number; position: number; total: number; }
 
-const CACHE_MS = 60_000;
+const API_URL = process.env.RANKING_API_URL ?? 'http://127.0.0.1:8088';
+const API_KEY = process.env.RANKING_API_KEY ?? '';
 
-let pool: Pool | null = null;
-function getPool(): Pool {
-  if (!pool) {
-    pool = mysql.createPool({
-      host: process.env.RANKING_DB_HOST ?? '127.0.0.1',
-      port: Number(process.env.RANKING_DB_PORT ?? 3306),
-      user: process.env.RANKING_DB_USER ?? 'sharptimer_user',
-      password: process.env.RANKING_DB_PASSWORD,
-      database: process.env.RANKING_DB_NAME ?? 'sharptimer_db',
-      connectionLimit: 4,
-      connectTimeout: 5_000,
-      supportBigNumbers: true,
-      bigNumberStrings: true,
-    });
-  }
-  return pool;
+async function get<T>(path: string, params: Record<string, string | number> = {}): Promise<T> {
+  const url = new URL(path, API_URL);
+  for (const [k, v] of Object.entries(params)) url.searchParams.set(k, String(v));
+  const res = await fetch(url, { headers: { 'X-Api-Key': API_KEY } });
+  if (!res.ok) throw new Error(`ranking API ${path}: HTTP ${res.status}`);
+  return res.json() as Promise<T>;
 }
-
-const cache = new Map<string, { at: number; value: unknown }>();
-async function cached<T>(key: string, load: () => Promise<T>): Promise<T> {
-  const hit = cache.get(key);
-  if (hit && Date.now() - hit.at < CACHE_MS) return hit.value as T;
-  const value = await load();
-  cache.set(key, { at: Date.now(), value });
-  return value;
-}
-
-async function query(sql: string, params: unknown[] = []): Promise<RowDataPacket[]> {
-  const [rows] = await getPool().query<RowDataPacket[]>(sql, params);
-  return rows;
-}
-
-// Puntos por jugador: en cada mapa+modo, 1000 * (total - puesto + 1) / total, sumado.
-const TOTALS_CTE = `
-  WITH ranked AS (
-    SELECT SteamID, PlayerName, MapName, Mode,
-           RANK() OVER (PARTITION BY MapName, Mode ORDER BY TimerTicks ASC) AS rnk,
-           COUNT(*) OVER (PARTITION BY MapName, Mode) AS total
-    FROM PlayerRecords
-  ),
-  totals AS (
-    SELECT SteamID, MAX(PlayerName) AS PlayerName,
-           ROUND(SUM(1000.0 * (total - rnk + 1) / total)) AS Points
-    FROM ranked
-    GROUP BY SteamID
-  )`;
 
 export function fetchGlobalTop(limit: number): Promise<TopRow[]> {
-  return cached(`top:${limit}`, async () => {
-    const rows = await query(
-      `${TOTALS_CTE}
-       SELECT SteamID, PlayerName, Points FROM totals ORDER BY Points DESC LIMIT ?`,
-      [limit],
-    );
-    return rows.map((r) => ({ steamId: String(r.SteamID), name: r.PlayerName, points: Number(r.Points) }));
-  });
+  return get<TopRow[]>('/top', { limit });
 }
 
 export function fetchPlayerRank(search: string): Promise<PlayerRow[]> {
-  const bySteamId = /^\d{15,}$/.test(search);
-  return cached(`rank:${search.toLowerCase()}`, async () => {
-    const rows = await query(
-      `${TOTALS_CTE}
-       SELECT PlayerName, Points, SteamID,
-              (SELECT COUNT(*) + 1 FROM totals AS t2 WHERE t2.Points > t1.Points) AS Position
-       FROM totals AS t1
-       WHERE ${bySteamId ? 'SteamID = ?' : 'PlayerName LIKE ?'}
-       ORDER BY Points DESC
-       LIMIT 10`,
-      [bySteamId ? search : `%${search}%`],
-    );
-    return rows.map((r) => ({
-      steamId: String(r.SteamID), name: r.PlayerName, points: Number(r.Points), position: Number(r.Position),
-    }));
-  });
+  return get<PlayerRow[]>('/rank', { q: search });
 }
 
 export function fetchMapTop(map: string, limit: number): Promise<MapTimeRow[]> {
-  return cached(`map:${map}:${limit}`, async () => {
-    const rows = await query(
-      `SELECT PlayerName, FormattedTime, TimesFinished
-       FROM PlayerRecords
-       WHERE MapName = ?
-       ORDER BY TimerTicks ASC
-       LIMIT ?`,
-      [map, limit],
-    );
-    return rows.map((r) => ({ name: r.PlayerName, time: r.FormattedTime, finishes: Number(r.TimesFinished) }));
-  });
+  return get<MapTimeRow[]>('/maptop', { map, limit });
 }
 
 // Igual que /pb del bot: PB de un jugador en un mapa y su puesto en ese mapa.
 export function fetchPlayerPbOnMap(map: string, search: string): Promise<PbRow[]> {
-  const bySteamId = /^\d{15,}$/.test(search);
-  return cached(`pb:${map}:${search.toLowerCase()}`, async () => {
-    const rows = await query(
-      `WITH ranked AS (
-         SELECT SteamID, PlayerName, FormattedTime, TimesFinished,
-                RANK() OVER (ORDER BY TimerTicks ASC) AS Position,
-                COUNT(*) OVER () AS TotalPlayers
-         FROM PlayerRecords
-         WHERE MapName = ?
-       )
-       SELECT PlayerName, SteamID, FormattedTime, TimesFinished, Position, TotalPlayers
-       FROM ranked
-       WHERE ${bySteamId ? 'SteamID = ?' : 'PlayerName LIKE ?'}
-       ORDER BY Position ASC
-       LIMIT 10`,
-      [map, bySteamId ? search : `%${search}%`],
-    );
-    return rows.map((r) => ({
-      name: r.PlayerName, steamId: String(r.SteamID), time: r.FormattedTime,
-      finishes: Number(r.TimesFinished), position: Number(r.Position), total: Number(r.TotalPlayers),
-    }));
-  });
+  return get<PbRow[]>('/pb', { map, q: search });
 }
 
 export function fetchMaps(): Promise<MapRow[]> {
-  return cached('maps', async () => {
-    const rows = await query(
-      `SELECT MapName, COUNT(DISTINCT SteamID) AS Jugadores
-       FROM PlayerRecords
-       GROUP BY MapName
-       ORDER BY MapName ASC`,
-    );
-    return rows.map((r) => ({ map: r.MapName, players: Number(r.Jugadores) }));
-  });
+  return get<MapRow[]>('/maps');
 }
