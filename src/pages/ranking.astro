@@ -52,8 +52,8 @@ Astro.response.headers.set('Cache-Control', 'public, max-age=60');
 ---
 
 <Layout
-  title="Ranking Bhop — RandomPicks CS2"
-  description="Ranking global de bhop del servidor RandomPicks de CS2: top 20 por puntos y mejores tiempos de cada mapa, en directo."
+  title="Ranking Minigames — RandomPicks CS2"
+  description="Ranking global de minigames del servidor RandomPicks de CS2: top 20 por puntos y mejores tiempos de cada mapa, en directo."
 >
   <nav>
     <div class="nav-inner">
@@ -92,7 +92,7 @@ Astro.response.headers.set('Cache-Control', 'public, max-age=60');
 
   <main class="ranking-page">
     <header class="rk-header">
-      <div class="section-tag" data-i18n="rk-tag">RANKING BHOP</div>
+      <div class="section-tag" data-i18n="rk-tag">RANKING MINIGAMES</div>
       <h1 class="rk-title" data-i18n="rk-title">Los más rápidos del servidor</h1>
       <p class="rk-sub" data-i18n="rk-sub">Top 20 global por puntos. Elige un mapa para ver solo sus records.</p>
     </header>
@@ -119,9 +119,9 @@ Astro.response.headers.set('Cache-Control', 'public, max-age=60');
       <header class="board-head">
         <div>
           <span class={`board-kind ${isMap ? 'is-map' : ''}`}>
-            {isMap ? <span data-i18n="rk-kind-map">⏱️ Records del mapa</span> : <span data-i18n="rk-kind-global">🏆 Ranking global</span>}
+            {isMap ? <span data-i18n="rk-kind-map">⏱️ Records del mapa</span> : <span id="board-title" data-i18n="rk-kind-global">🏆 Ranking global</span>}
           </span>
-          <h2 id="board-title" class="board-title">{isMap ? mapParam : 'SharpTimer'}</h2>
+          {isMap && <h2 id="board-title" class="board-title">{mapParam}</h2>}
         </div>
         {!failed && rows.length > 0 && (
           <div class="board-meta">
@@ -200,7 +200,7 @@ Astro.response.headers.set('Cache-Control', 'public, max-age=60');
   <script is:inline>
     var t = {
       es: {
-        'nav-home': 'Home', 'nav-kofi': '☕ Support us', 'rk-tag': 'RANKING BHOP', 'rk-title': 'Los más rápidos del servidor',
+        'nav-home': 'Home', 'nav-kofi': '☕ Support us', 'rk-tag': 'RANKING MINIGAMES', 'rk-title': 'Los más rápidos del servidor',
         'rk-sub': 'Top 20 global por puntos. Elige un mapa para ver solo sus records.',
         'rk-map-label': 'Mapa', 'rk-search-label': 'Jugador',
         'rk-search-ph': 'Nombre o SteamID64', 'rk-all-maps': '🏆 Ranking global', 'rk-search-btn': 'Buscar', 'rk-clear': 'Limpiar',
@@ -214,7 +214,7 @@ Astro.response.headers.set('Cache-Control', 'public, max-age=60');
         'rk-footnote': 'Se actualiza cada minuto · Conéctate y entra en el ranking:',
       },
       en: {
-        'nav-home': 'Home', 'nav-kofi': '☕ Support us', 'rk-tag': 'BHOP RANKING', 'rk-title': 'The fastest players on the server',
+        'nav-home': 'Home', 'nav-kofi': '☕ Support us', 'rk-tag': 'MINIGAMES RANKING', 'rk-title': 'The fastest players on the server',
         'rk-sub': 'Global top 20 by points. Pick a map to see only its records.',
         'rk-map-label': 'Map', 'rk-search-label': 'Player',
         'rk-search-ph': 'Name or SteamID64', 'rk-all-maps': '🏆 Global ranking', 'rk-search-btn': 'Search', 'rk-clear': 'Clear',
@@ -290,7 +290,7 @@ Astro.response.headers.set('Cache-Control', 'public, max-age=60');
     height: 64px; display: flex; align-items: center; justify-content: space-between;
   }
   .logo-img-link { display: flex; align-items: center; text-decoration: none; }
-  .nav-links { display: flex; align-items: center; gap: 28px; list-style: none; margin: 0 0 0 auto; padding: 0 28px 0 0; }
+  .nav-links { display: flex; align-items: center; gap: 28px; list-style: none; margin: 0 auto; padding: 0; }
   .nav-links a { color: var(--muted); text-decoration: none; font-size: 0.88rem; font-weight: 500; transition: color 0.2s; letter-spacing: 0.02em; }
   .nav-links a:hover { color: var(--text); }
   .nav-discord { color: var(--discord) !important; border: 1px solid var(--discord); padding: 5px 14px; border-radius: 6px; transition: background 0.2s !important; }
