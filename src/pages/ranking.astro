@@ -1,51 +1,59 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import { fetchGlobalTop, fetchMapTop, fetchMaps, fetchPlayerPbOnMap, fetchPlayerRank } from '../lib/ranking';
-import type { MapRow, MapTimeRow, PbRow, PlayerRow, TopRow } from '../lib/ranking';
+import type { MapRow } from '../lib/ranking';
 
 // Se renderiza en cada petición (datos en vivo, con caché de 60 s en el servidor).
 export const prerender = false;
 
-// Mismo formato que las respuestas del bot de Discord (sharptimer-bot): cada bloque
-// replica un comando (/top, /rank, /maptop, /pb, /maps) con sus textos y colores.
-const TOP_N = 10; // DEFAULT_TOP_N del bot
+// Una sola lista: el ranking global (puntos) o, si se filtra por mapa, solo los
+// records de ese mapa. El buscador filtra dentro de la lista que se está viendo.
+const LIMIT = 20;
 const search = (Astro.url.searchParams.get('q') ?? '').trim().slice(0, 64);
 const mapParam = (Astro.url.searchParams.get('map') ?? '').trim().slice(0, 128);
 
-let top: TopRow[] = [];
+interface Row { pos: number; name: string; value: string; extra?: string; total?: number; }
+
 let maps: MapRow[] = [];
-let mapTop: MapTimeRow[] = [];
-let pbs: PbRow[] = [];
-let players: PlayerRow[] = [];
+let rows: Row[] = [];
+let mapTotal = 0;          // jugadores con record en el mapa elegido
 let suggestions: string[] = [];
 let failed = false;
 
 try {
-  [top, maps] = await Promise.all([fetchGlobalTop(TOP_N), fetchMaps()]);
-  if (mapParam) {
-    if (maps.some((m) => m.map === mapParam)) {
-      mapTop = await fetchMapTop(mapParam, TOP_N);
-      if (search) pbs = await fetchPlayerPbOnMap(mapParam, search);
-    } else {
-      suggestions = maps.map((m) => m.map).filter((m) => m.toLowerCase().includes(mapParam.toLowerCase())).slice(0, 5);
-    }
-  } else if (search) {
-    players = await fetchPlayerRank(search);
+  maps = await fetchMaps();
+  const selected = mapParam ? maps.find((m) => m.map === mapParam) : undefined;
+
+  if (mapParam && !selected) {
+    // Mapa desconocido: no se consulta nada con él, solo se sugieren parecidos.
+    suggestions = maps.map((m) => m.map).filter((m) => m.toLowerCase().includes(mapParam.toLowerCase())).slice(0, 5);
+  } else if (selected) {
+    mapTotal = selected.players;
+    rows = search
+      ? (await fetchPlayerPbOnMap(selected.map, search)).map((r) => ({ pos: r.position, name: r.name, value: r.time, extra: `${r.finishes} runs`, total: r.total }))
+      : (await fetchMapTop(selected.map, LIMIT)).map((r, i) => ({ pos: i + 1, name: r.name, value: r.time, extra: `${r.finishes} runs` }));
+  } else {
+    rows = search
+      ? (await fetchPlayerRank(search)).map((r) => ({ pos: r.position, name: r.name, value: `${r.points}`, extra: 'pts' }))
+      : (await fetchGlobalTop(LIMIT)).map((r, i) => ({ pos: i + 1, name: r.name, value: `${r.points}`, extra: 'pts' }));
   }
+  rows = rows.slice(0, LIMIT);
 } catch (err) {
-  console.error('[ranking] error leyendo la base de datos de SharpTimer:', err);
+  console.error('[ranking] error leyendo la ranking API:', err);
   failed = true;
 }
 
-const MEDALS = ['🥇', '🥈', '🥉'];
+const isMap = Boolean(mapParam) && maps.some((m) => m.map === mapParam);
+const unknownMap = Boolean(mapParam) && !isMap;
 const mapHref = (m: string) => `/ranking?map=${encodeURIComponent(m)}`;
+const podium = (pos: number) => (pos === 1 ? 'gold' : pos === 2 ? 'silver' : pos === 3 ? 'bronze' : '');
 
 Astro.response.headers.set('Cache-Control', 'public, max-age=60');
 ---
 
 <Layout
   title="Ranking Bhop — RandomPicks CS2"
-  description="Ranking global de bhop del servidor RandomPicks de CS2: puntos, mejores tiempos por mapa y búsqueda de jugadores. El mismo ranking que el bot de Discord, en directo."
+  description="Ranking global de bhop del servidor RandomPicks de CS2: top 20 por puntos y mejores tiempos de cada mapa, en directo."
 >
   <nav>
     <div class="nav-inner">
@@ -64,136 +72,112 @@ Astro.response.headers.set('Cache-Control', 'public, max-age=60');
     </div>
   </nav>
 
+  <div class="rk-bg" aria-hidden="true">
+    <div class="rk-orb rk-orb1"></div>
+    <div class="rk-orb rk-orb2"></div>
+    <div class="rk-grid-overlay"></div>
+  </div>
+
   <main class="ranking-page">
     <header class="rk-header">
       <div class="section-tag" data-i18n="rk-tag">RANKING BHOP</div>
       <h1 class="rk-title" data-i18n="rk-title">Los más rápidos del servidor</h1>
-      <p class="rk-sub" data-i18n="rk-sub">
-        El mismo ranking que el bot de Discord (/top, /maptop, /pb, /rank y /maps), en directo desde el servidor.
-      </p>
+      <p class="rk-sub" data-i18n="rk-sub">Top 20 global por puntos. Elige un mapa para ver solo sus records.</p>
     </header>
 
-    <form class="rk-search" method="get" action="/ranking">
-      <input
-        type="search" name="q" value={search} maxlength="64"
-        placeholder="Jugador o SteamID64" data-i18n-placeholder="rk-search-ph" aria-label="Jugador"
-      />
-      <select name="map" aria-label="Mapa">
-        <option value="" data-i18n="rk-all-maps">Todos los mapas</option>
-        {maps.map((m) => <option value={m.map} selected={m.map === mapParam}>{m.map}</option>)}
-      </select>
-      <button type="submit" data-i18n="rk-search-btn">Buscar</button>
-      {(search || mapParam) && <a class="rk-clear" href="/ranking" data-i18n="rk-clear">Limpiar</a>}
+    <form class="rk-filters" method="get" action="/ranking">
+      <label class="rk-field rk-field-map">
+        <span class="rk-label" data-i18n="rk-map-label">Mapa</span>
+        <select name="map" id="rk-map">
+          <option value="" data-i18n="rk-all-maps">🏆 Ranking global</option>
+          {maps.map((m) => <option value={m.map} selected={m.map === mapParam}>{m.map}</option>)}
+        </select>
+      </label>
+      <label class="rk-field rk-field-search">
+        <span class="rk-label" data-i18n="rk-search-label">Jugador</span>
+        <input type="search" name="q" value={search} maxlength="64" placeholder="Nombre o SteamID64" data-i18n-placeholder="rk-search-ph" />
+      </label>
+      <div class="rk-actions">
+        <button type="submit" class="rk-btn" data-i18n="rk-search-btn">Buscar</button>
+        {(search || mapParam) && <a class="rk-clear" href="/ranking" data-i18n="rk-clear">Limpiar</a>}
+      </div>
     </form>
 
-    {failed ? (
-      <div class="embed" style="--accent: #ed4245">
-        <p class="embed-desc">Error leyendo la base. El ranking no está disponible ahora mismo, vuelve a intentarlo en unos minutos.</p>
-      </div>
-    ) : (
-      <div class="rk-grid">
-        <div class="rk-col">
-          {/* /rank <jugador> */}
-          {search && !mapParam && (
-            players.length === 0 ? (
-              <div class="embed-msg">No encontré a ningún jugador que coincida con <code>{search}</code>.</div>
-            ) : players.length === 1 ? (
-              <div class="embed-msg">
-                <strong>{players[0].name}</strong> está en la posición <strong>#{players[0].position}</strong> con <strong>{players[0].points} puntos</strong>.
-              </div>
-            ) : (
-              <div class="embed-msg">
-                Encontré {players.length} jugadores que coinciden con <code>{search}</code>, sé más específico:
-                {players.map((p) => (
-                  <div class="line"><code>#{p.position}</code> <strong>{p.name}</strong> — {p.points} pts</div>
-                ))}
-              </div>
-            )
-          )}
-
-          {/* /top */}
-          <section class="embed" style="--accent: #f1c40f">
-            <h2 class="embed-title">🏆 Ranking Global - SharpTimer</h2>
-            {top.length === 0 ? (
-              <p class="embed-desc">No hay datos todavía.</p>
-            ) : (
-              <>
-                <div class="embed-desc">
-                  {top.map((p, i) => (
-                    <div class="line">
-                      {i < 3 ? MEDALS[i] : <code>#{i + 1}</code>} <strong>{p.name || 'Desconocido'}</strong> — {p.points} pts
-                    </div>
-                  ))}
-                </div>
-                <p class="embed-footer">Mostrando top {top.length} | Puntos por posición relativa en cada mapa</p>
-              </>
-            )}
-          </section>
+    <section class="board" aria-labelledby="board-title">
+      <header class="board-head">
+        <div>
+          <span class={`board-kind ${isMap ? 'is-map' : ''}`}>
+            {isMap ? <span data-i18n="rk-kind-map">⏱️ Records del mapa</span> : <span data-i18n="rk-kind-global">🏆 Ranking global</span>}
+          </span>
+          <h2 id="board-title" class="board-title">{isMap ? mapParam : 'SharpTimer'}</h2>
         </div>
-
-        <div class="rk-col">
-          {/* /pb <mapa> <jugador> */}
-          {mapParam && search && mapTop.length > 0 && (
-            pbs.length === 0 ? (
-              <div class="embed-msg">No encontré ningún tiempo de <code>{search}</code> en el mapa <code>{mapParam}</code>.</div>
-            ) : pbs.length === 1 ? (
-              <div class="embed-msg">
-                <strong>{pbs[0].name}</strong> en <code>{mapParam}</code>: <strong>{pbs[0].time}</strong> — posición <strong>#{pbs[0].position}/{pbs[0].total}</strong> ({pbs[0].finishes} runs)
-              </div>
+        {!failed && rows.length > 0 && (
+          <div class="board-meta">
+            {search ? (
+              <><strong>{rows.length}</strong> <span data-i18n="rk-results">resultados</span></>
+            ) : isMap ? (
+              <><strong>{rows.length}</strong> / {mapTotal}{' '}<span data-i18n="rk-players">jugadores</span></>
             ) : (
-              <div class="embed-msg">
-                Encontré {pbs.length} jugadores que coinciden con <code>{search}</code> en <code>{mapParam}</code>, sé más específico:
-                {pbs.map((p) => (
-                  <div class="line"><code>#{p.position}/{p.total}</code> <strong>{p.name}</strong> — {p.time}</div>
-                ))}
-              </div>
-            )
-          )}
-
-          {/* /maptop <mapa> */}
-          {mapParam && (
-            mapTop.length === 0 ? (
-              <div class="embed-msg">
-                No encontré records para el mapa <code>{mapParam}</code>.
-                {suggestions.length > 0 && (
-                  <div class="line">¿Quizás quisiste decir: {suggestions.map((m, i) => (<>{i > 0 && ', '}<a href={mapHref(m)}>{m}</a></>))}?</div>
-                )}
-              </div>
-            ) : (
-              <section class="embed" style="--accent: #3498db">
-                <h2 class="embed-title">⏱️ Top tiempos - {mapParam}</h2>
-                <div class="embed-desc">
-                  {mapTop.map((r, i) => (
-                    <div class="line">
-                      {i < 3 ? MEDALS[i] : <code>#{i + 1}</code>} <strong>{r.name || 'Desconocido'}</strong> — {r.time} ({r.finishes} runs)
-                    </div>
-                  ))}
-                </div>
-              </section>
-            )
-          )}
-
-          {/* /maps */}
-          <section class="embed" style="--accent: #2ecc71">
-            <h2 class="embed-title">🗺️ Mapas con records ({maps.length} en total)</h2>
-            {maps.length === 0 ? (
-              <p class="embed-desc">No hay mapas con records todavía.</p>
-            ) : (
-              <>
-                <div class="embed-desc maps-list">
-                  {maps.map((m) => (
-                    <div class="line">
-                      <a href={mapHref(m.map)} class={m.map === mapParam ? 'active' : ''}><strong>{m.map}</strong></a> — {m.players} jugador{m.players !== 1 ? 'es' : ''}
-                    </div>
-                  ))}
-                </div>
-                <p class="embed-footer" data-i18n="rk-maps-hint">Pulsa un mapa para ver su top de tiempos</p>
-              </>
+              <>Top <strong>{rows.length}</strong></>
             )}
-          </section>
+          </div>
+        )}
+      </header>
+
+      {failed ? (
+        <div class="board-empty is-error">
+          <span class="board-empty-icon" aria-hidden="true">⚠️</span>
+          <p data-i18n="rk-error">El ranking no está disponible ahora mismo. Vuelve a intentarlo en unos minutos.</p>
         </div>
-      </div>
-    )}
+      ) : unknownMap ? (
+        <div class="board-empty">
+          <span class="board-empty-icon" aria-hidden="true">🗺️</span>
+          <p><span data-i18n="rk-no-map">No hay records para el mapa</span> <code>{mapParam}</code>.</p>
+          {suggestions.length > 0 && (
+            <div class="board-suggest">
+              <span data-i18n="rk-maybe">¿Quizás quisiste decir?</span>
+              {suggestions.map((m) => <a href={mapHref(m)}>{m}</a>)}
+            </div>
+          )}
+        </div>
+      ) : rows.length === 0 ? (
+        <div class="board-empty">
+          <span class="board-empty-icon" aria-hidden="true">🔍</span>
+          {search
+            ? <p><span data-i18n="rk-no-player">Ningún jugador coincide con</span> <code>{search}</code>.</p>
+            : <p data-i18n="rk-no-data">Todavía no hay datos.</p>}
+        </div>
+      ) : (
+        <>
+          <div class="board-cols" aria-hidden="true">
+            <span>#</span>
+            <span data-i18n="rk-col-player">Jugador</span>
+            <span>{isMap ? <span data-i18n="rk-col-time">Tiempo</span> : <span data-i18n="rk-col-points">Puntos</span>}</span>
+          </div>
+          <ol class="board-list">
+            {rows.map((r, i) => (
+              <li class={`row ${podium(r.pos)}`} style={`--i:${i}`}>
+                <span class="row-pos">
+                  {r.pos <= 3 ? <span class="medal">{r.pos}</span> : <span>{r.pos}</span>}
+                  {r.total !== undefined && <small class="row-total">/{r.total}</small>}
+                </span>
+                <span class="row-name" title={r.name || 'Desconocido'}>{r.name || 'Desconocido'}</span>
+                <span class="row-value">
+                  <strong>{r.value}</strong>
+                  {r.extra && <small>{r.extra}</small>}
+                </span>
+              </li>
+            ))}
+          </ol>
+        </>
+      )}
+
+      {!failed && !unknownMap && (
+        <footer class="board-foot" data-i18n={isMap ? 'rk-foot-map' : 'rk-foot-global'}>
+          {isMap ? 'Mejor tiempo de cada jugador en este mapa' : 'Puntos por posición relativa en cada mapa'}
+        </footer>
+      )}
+    </section>
 
     <p class="rk-footnote">
       <span data-i18n="rk-footnote">Se actualiza cada minuto · Conéctate y entra en el ranking:</span>
@@ -205,16 +189,30 @@ Astro.response.headers.set('Cache-Control', 'public, max-age=60');
     var t = {
       es: {
         'rk-back': '← Volver al inicio', 'rk-tag': 'RANKING BHOP', 'rk-title': 'Los más rápidos del servidor',
-        'rk-sub': 'El mismo ranking que el bot de Discord (/top, /maptop, /pb, /rank y /maps), en directo desde el servidor.',
-        'rk-search-ph': 'Jugador o SteamID64', 'rk-all-maps': 'Todos los mapas', 'rk-search-btn': 'Buscar', 'rk-clear': 'Limpiar',
-        'rk-maps-hint': 'Pulsa un mapa para ver su top de tiempos',
+        'rk-sub': 'Top 20 global por puntos. Elige un mapa para ver solo sus records.',
+        'rk-map-label': 'Mapa', 'rk-search-label': 'Jugador',
+        'rk-search-ph': 'Nombre o SteamID64', 'rk-all-maps': '🏆 Ranking global', 'rk-search-btn': 'Buscar', 'rk-clear': 'Limpiar',
+        'rk-kind-map': '⏱️ Records del mapa', 'rk-kind-global': '🏆 Ranking global',
+        'rk-results': 'resultados', 'rk-players': 'jugadores',
+        'rk-col-player': 'Jugador', 'rk-col-time': 'Tiempo', 'rk-col-points': 'Puntos',
+        'rk-error': 'El ranking no está disponible ahora mismo. Vuelve a intentarlo en unos minutos.',
+        'rk-no-map': 'No hay records para el mapa', 'rk-maybe': '¿Quizás quisiste decir?',
+        'rk-no-player': 'Ningún jugador coincide con', 'rk-no-data': 'Todavía no hay datos.',
+        'rk-foot-map': 'Mejor tiempo de cada jugador en este mapa', 'rk-foot-global': 'Puntos por posición relativa en cada mapa',
         'rk-footnote': 'Se actualiza cada minuto · Conéctate y entra en el ranking:',
       },
       en: {
         'rk-back': '← Back to home', 'rk-tag': 'BHOP RANKING', 'rk-title': 'The fastest players on the server',
-        'rk-sub': 'The same ranking as the Discord bot (/top, /maptop, /pb, /rank and /maps), live from the server.',
-        'rk-search-ph': 'Player or SteamID64', 'rk-all-maps': 'All maps', 'rk-search-btn': 'Search', 'rk-clear': 'Clear',
-        'rk-maps-hint': 'Click a map to see its top times',
+        'rk-sub': 'Global top 20 by points. Pick a map to see only its records.',
+        'rk-map-label': 'Map', 'rk-search-label': 'Player',
+        'rk-search-ph': 'Name or SteamID64', 'rk-all-maps': '🏆 Global ranking', 'rk-search-btn': 'Search', 'rk-clear': 'Clear',
+        'rk-kind-map': '⏱️ Map records', 'rk-kind-global': '🏆 Global ranking',
+        'rk-results': 'results', 'rk-players': 'players',
+        'rk-col-player': 'Player', 'rk-col-time': 'Time', 'rk-col-points': 'Points',
+        'rk-error': 'The ranking is not available right now. Please try again in a few minutes.',
+        'rk-no-map': 'No records for map', 'rk-maybe': 'Did you mean?',
+        'rk-no-player': 'No player matches', 'rk-no-data': 'No data yet.',
+        'rk-foot-map': "Each player's best time on this map", 'rk-foot-global': 'Points based on relative position on each map',
         'rk-footnote': 'Updated every minute · Connect and join the ranking:',
       },
     };
@@ -254,6 +252,10 @@ Astro.response.headers.set('Cache-Control', 'public, max-age=60');
       try { localStorage.setItem('rp-lang', currentLang); } catch (_) {}
       applyLang(currentLang);
     });
+
+    // Al cambiar de mapa se carga directamente su lista (sin JS, sirve el botón Buscar).
+    var mapSelect = document.getElementById('rk-map');
+    if (mapSelect) mapSelect.addEventListener('change', function() { mapSelect.form.submit(); });
   </script>
 </Layout>
 
@@ -286,64 +288,180 @@ Astro.response.headers.set('Cache-Control', 'public, max-age=60');
   .lang-inactive { color: var(--muted); transition: color 0.15s; }
   .lang-toggle:hover .lang-inactive { color: var(--text); }
 
-  .ranking-page { max-width: 1200px; margin: 0 auto; padding: 112px 24px 72px; }
-  .rk-header { text-align: center; margin-bottom: 36px; animation: fadeInUp 0.6s ease both; }
-  .section-tag { font-size: 0.75rem; font-weight: 700; letter-spacing: 0.2em; color: var(--orange); margin-bottom: 12px; }
-  .rk-title { font-size: clamp(2rem, 4vw, 3rem); color: var(--text); margin-bottom: 12px; line-height: 1.1; }
-  .rk-sub { color: var(--muted); max-width: 580px; margin: 0 auto; }
+  /* ── Fondo ── */
+  .rk-bg { position: fixed; inset: 0; z-index: -1; overflow: hidden; pointer-events: none; }
+  .rk-grid-overlay {
+    position: absolute; inset: 0;
+    background-image:
+      linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+    background-size: 48px 48px;
+    mask-image: radial-gradient(ellipse at 50% 0%, #000 0%, transparent 70%);
+  }
+  .rk-orb { position: absolute; border-radius: 50%; filter: blur(90px); opacity: 0.35; }
+  .rk-orb1 { width: 520px; height: 520px; background: var(--orange); top: -260px; left: 50%; transform: translateX(-50%); opacity: 0.22; }
+  .rk-orb2 { width: 420px; height: 420px; background: #5865F2; bottom: -200px; right: -120px; opacity: 0.12; }
 
-  .rk-search { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; max-width: 760px; margin: 0 auto 32px; }
-  .rk-search input, .rk-search select {
-    flex: 1 1 200px; min-width: 0; background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
-    color: var(--text); font: inherit; padding: 11px 14px; outline: none; transition: border-color 0.2s;
+  /* ── Cabecera ── */
+  .ranking-page { max-width: 860px; margin: 0 auto; padding: 112px 24px 72px; }
+  .rk-header { text-align: center; margin-bottom: 32px; animation: fadeInUp 0.6s ease both; }
+  .section-tag {
+    display: inline-block; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.2em; color: var(--orange);
+    padding: 6px 14px; border: 1px solid rgba(255,107,43,0.35); border-radius: 999px;
+    background: rgba(255,107,43,0.08); margin-bottom: 16px;
   }
-  .rk-search select { cursor: pointer; }
-  .rk-search input:focus, .rk-search select:focus { border-color: var(--orange); }
-  .rk-search button {
-    background: var(--orange); color: #fff; border: none; border-radius: 10px; padding: 11px 22px;
-    font: inherit; font-weight: 600; cursor: pointer; transition: background 0.2s;
+  .rk-title {
+    font-size: clamp(2.1rem, 5vw, 3.4rem); line-height: 1.05; margin-bottom: 12px;
+    background: linear-gradient(180deg, #fff 30%, #b9b9d6);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
   }
-  .rk-search button:hover { background: var(--orange-dim); }
-  .rk-clear { color: var(--muted); font-size: 0.88rem; text-decoration: none; }
+  .rk-sub { color: var(--muted); max-width: 520px; margin: 0 auto; }
+
+  /* ── Filtros ── */
+  .rk-filters {
+    display: grid; grid-template-columns: 1.1fr 1fr auto; gap: 12px; align-items: end;
+    padding: 16px; margin-bottom: 20px;
+    background: rgba(26,26,46,0.6); border: 1px solid var(--border); border-radius: 16px;
+    backdrop-filter: blur(10px);
+    animation: fadeInUp 0.6s 0.05s ease both;
+  }
+  .rk-field { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+  .rk-label { font-size: 0.7rem; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); padding-left: 2px; }
+  .rk-filters input, .rk-filters select {
+    width: 100%; min-width: 0; height: 46px;
+    background: var(--bg2); border: 1px solid var(--border); border-radius: 10px;
+    color: var(--text); font: inherit; font-size: 0.95rem; padding: 0 14px; outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .rk-filters select {
+    appearance: none; cursor: pointer; padding-right: 40px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%237070A0' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right 14px center;
+  }
+  .rk-filters select option { background: var(--bg2); }
+  .rk-filters input:focus, .rk-filters select:focus { border-color: var(--orange); box-shadow: 0 0 0 3px rgba(255,107,43,0.18); }
+  .rk-actions { display: flex; align-items: center; gap: 12px; }
+  .rk-btn {
+    height: 46px; padding: 0 24px; border: none; border-radius: 10px; cursor: pointer;
+    background: linear-gradient(135deg, var(--orange), #ff8a50); color: #fff;
+    font: inherit; font-weight: 600; letter-spacing: 0.02em;
+    box-shadow: 0 6px 20px -6px var(--orange-glow); transition: transform 0.15s, box-shadow 0.2s, filter 0.2s;
+  }
+  .rk-btn:hover { filter: brightness(1.08); box-shadow: 0 8px 26px -6px var(--orange-glow); }
+  .rk-btn:active { transform: translateY(1px); }
+  .rk-btn:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+  .rk-clear { color: var(--muted); font-size: 0.88rem; text-decoration: none; white-space: nowrap; }
   .rk-clear:hover { color: var(--text); }
 
-  .rk-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; align-items: start; }
-  .rk-col { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
-
-  /* ── Embeds al estilo Discord ── */
-  .embed, .embed-msg {
-    --embed-bg: #2b2d31;
-    background: var(--embed-bg); border-radius: 4px; color: #dbdee1;
-    font-size: 0.95rem; line-height: 1.55; overflow-wrap: anywhere;
-    animation: fadeInUp 0.5s ease both;
+  /* ── Lista ── */
+  .board {
+    background: linear-gradient(180deg, rgba(26,26,46,0.85), rgba(15,15,26,0.85));
+    border: 1px solid var(--border); border-radius: 20px; overflow: hidden;
+    box-shadow: 0 30px 60px -30px rgba(0,0,0,0.7);
+    animation: fadeInUp 0.6s 0.1s ease both;
   }
-  .embed { border-left: 4px solid var(--accent); padding: 12px 16px 14px 12px; }
-  .embed-msg { background: transparent; padding: 4px 2px; }
-  .embed-title { font-family: 'Inter', sans-serif; font-size: 1rem; font-weight: 700; color: #f2f3f5; letter-spacing: 0; margin-bottom: 8px; }
-  .embed-desc .line, .embed-msg .line { margin-top: 2px; }
-  .embed strong, .embed-msg strong { color: #f2f3f5; font-weight: 700; }
-  .embed code, .embed-msg code {
+  .board-head {
+    display: flex; align-items: flex-end; justify-content: space-between; gap: 16px;
+    padding: 22px 24px 18px; border-bottom: 1px solid var(--border);
+    background: radial-gradient(ellipse at 0% 0%, rgba(255,107,43,0.12), transparent 60%);
+  }
+  .board-kind { font-size: 0.72rem; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: #f1c40f; }
+  .board-kind.is-map { color: #4fb3ff; }
+  .board-title { font-size: clamp(1.4rem, 3vw, 1.9rem); color: var(--text); line-height: 1.15; margin-top: 2px; overflow-wrap: anywhere; }
+  .board-meta { color: var(--muted); font-size: 0.85rem; white-space: nowrap; }
+  .board-meta strong { color: var(--text); }
+
+  .board-cols, .row {
+    display: grid; grid-template-columns: 64px minmax(0, 1fr) auto; align-items: center; gap: 12px;
+    padding: 0 24px;
+  }
+  .board-cols {
+    height: 38px; font-size: 0.7rem; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted);
+    border-bottom: 1px solid rgba(42,42,69,0.6);
+  }
+  .board-cols > :last-child { text-align: right; }
+
+  .board-list { list-style: none; }
+  .row {
+    position: relative; min-height: 58px;
+    border-bottom: 1px solid rgba(42,42,69,0.45);
+    transition: background 0.2s;
+    animation: rowIn 0.45s ease both; animation-delay: calc(var(--i) * 30ms);
+  }
+  .row:last-child { border-bottom: none; }
+  .row:nth-child(even) { background: rgba(255,255,255,0.015); }
+  .row:hover { background: rgba(255,107,43,0.06); }
+  .row::before {
+    content: ''; position: absolute; left: 0; top: 10px; bottom: 10px; width: 3px; border-radius: 0 3px 3px 0;
+    background: var(--podium, transparent);
+  }
+
+  .row-pos { display: flex; align-items: baseline; gap: 2px; font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 1.15rem; color: var(--muted); }
+  .row-total { font-size: 0.75rem; font-weight: 500; color: var(--muted); opacity: 0.8; }
+  .medal {
+    display: inline-grid; place-items: center; width: 32px; height: 32px; border-radius: 50%;
+    font-size: 1rem; color: #1a1205; background: var(--podium);
+    box-shadow: 0 0 0 3px rgba(255,255,255,0.06), 0 4px 14px -4px var(--podium-c);
+  }
+  .row-name { font-weight: 500; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .row-value { display: flex; align-items: baseline; justify-content: flex-end; gap: 6px; text-align: right; white-space: nowrap; }
+  .row-value strong { font-family: 'Rajdhani', sans-serif; font-size: 1.15rem; font-weight: 700; color: var(--text); font-variant-numeric: tabular-nums; }
+  .row-value small { font-size: 0.75rem; color: var(--muted); }
+
+  .row.gold   { --podium-c: #f1c40f; --podium: linear-gradient(135deg, #ffe27a, #f1b20f); background: linear-gradient(90deg, rgba(241,196,15,0.10), transparent 70%); }
+  .row.silver { --podium-c: #c3cbd6; --podium: linear-gradient(135deg, #f0f3f7, #a9b3c1); background: linear-gradient(90deg, rgba(200,210,225,0.08), transparent 70%); }
+  .row.bronze { --podium-c: #cd7f32; --podium: linear-gradient(135deg, #f3b07a, #c06a2c); background: linear-gradient(90deg, rgba(205,127,50,0.09), transparent 70%); }
+  .row.gold .row-name, .row.silver .row-name, .row.bronze .row-name { font-weight: 600; }
+  .row.gold .row-value strong { color: #ffd84a; }
+
+  .board-empty { padding: 48px 24px; text-align: center; color: var(--muted); }
+  .board-empty.is-error { color: #ff8d8f; }
+  .board-empty-icon { display: block; font-size: 2rem; margin-bottom: 10px; }
+  .board-empty code, .rk-footnote code {
     font-family: ui-monospace, 'Cascadia Code', Consolas, monospace; font-size: 0.85em;
-    background: #1e1f22; border-radius: 3px; padding: 1px 4px;
+    background: var(--bg2); border: 1px solid var(--border); border-radius: 6px; padding: 2px 6px; color: var(--text);
   }
-  .embed-footer { margin-top: 8px; font-size: 0.75rem; color: #949ba4; }
-  .embed a, .embed-msg a { color: #00a8fc; text-decoration: none; }
-  .embed a:hover, .embed-msg a:hover { text-decoration: underline; }
-  .embed a strong { color: inherit; }
-  .embed a.active strong { color: var(--orange); }
-  .maps-list { max-height: 520px; overflow-y: auto; padding-right: 6px; }
+  .board-suggest { margin-top: 16px; display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 8px; }
+  .board-suggest a {
+    color: var(--text); text-decoration: none; font-size: 0.85rem; padding: 6px 12px; border-radius: 999px;
+    border: 1px solid var(--border); background: var(--bg2); transition: border-color 0.2s, color 0.2s;
+  }
+  .board-suggest a:hover { border-color: var(--orange); color: var(--orange); }
 
-  .rk-footnote { text-align: center; color: var(--muted); font-size: 0.85rem; margin-top: 40px; }
+  .board-foot { padding: 14px 24px; font-size: 0.78rem; color: var(--muted); border-top: 1px solid var(--border); background: rgba(10,10,15,0.35); }
+
+  .rk-footnote { text-align: center; color: var(--muted); font-size: 0.85rem; margin-top: 32px; }
   .rk-footnote code { color: var(--orange); margin-left: 6px; }
 
-  @media (max-width: 900px) {
-    .rk-grid { grid-template-columns: 1fr; }
+  @keyframes rowIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .rk-header, .rk-filters, .board, .row { animation: none; }
+  }
+
+  @media (max-width: 720px) {
+    .rk-filters { grid-template-columns: 1fr 1fr; }
+    .rk-actions { grid-column: 1 / -1; }
+    .rk-btn { flex: 1; }
   }
   @media (max-width: 600px) {
     .nav-inner { padding: 0 16px; }
+    .nav-back { font-size: 0.8rem; }
     .lang-sep, .lang-inactive { display: none; }
-    .ranking-page { padding: 96px 16px 56px; }
-    .embed { font-size: 0.9rem; }
-    .rk-footnote code { display: block; margin: 6px 0 0; }
+    .ranking-page { padding: 92px 16px 56px; }
+    .rk-header { margin-bottom: 24px; }
+    .rk-filters { grid-template-columns: 1fr; padding: 14px; gap: 10px; }
+    .board { border-radius: 16px; }
+    .board-head { padding: 18px 16px 14px; flex-direction: column; align-items: flex-start; gap: 6px; }
+    .board-cols, .row { grid-template-columns: 44px minmax(0, 1fr) auto; gap: 10px; padding: 0 16px; }
+    .row { min-height: 54px; }
+    .row-value { flex-direction: column; align-items: flex-end; gap: 0; }
+    .row-value strong { font-size: 1.05rem; }
+    .row-value small { font-size: 0.7rem; }
+    .medal { width: 28px; height: 28px; font-size: 0.9rem; }
+    .board-foot { padding: 12px 16px; }
+    .rk-footnote code { display: inline-block; margin: 6px 0 0; }
   }
 </style>
