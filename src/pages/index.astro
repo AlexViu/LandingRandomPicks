@@ -1,5 +1,7 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import AdBanner from '../components/AdBanner.astro';
+import { AD_SLOTS } from '../lib/ads';
 
 const modes = [
   {
@@ -346,6 +348,8 @@ const ranks = [
     </div>
   </section>
 
+  <AdBanner unit={AD_SLOTS.landing} />
+
   <!-- FAQ -->
   <section class="section" id="faq">
     <div class="container">
@@ -444,6 +448,7 @@ const ranks = [
   <script is:inline>
     var t = {
       es: {
+        'ad-label': 'Publicidad',
         'nav-home': 'Home', 'nav-modos': 'Modos', 'nav-progression': 'Progresión', 'nav-faq': 'FAQ', 'nav-ranking': 'Ranking', 'nav-kofi': '☕ Support us',
         'hero-badge': 'ROL DE FUNDADOR DISPONIBLE — PLAZAS LIMITADAS',
         'hero-title': 'El servidor CS2 de la<br /><span class="title-highlight"><span class="title-text">comunidad hispanohablante</span><span class="title-underline"></span></span>',
@@ -505,6 +510,7 @@ const ranks = [
         'footer-text': 'Servidor de minigames para CS2 · No afiliado con Valve Corporation',
       },
       en: {
+        'ad-label': 'Advertisement',
         'nav-home': 'Home', 'nav-modos': 'Modes', 'nav-progression': 'Progression', 'nav-faq': 'FAQ', 'nav-ranking': 'Ranking', 'nav-kofi': '☕ Support us',
         'hero-badge': 'FOUNDER ROLE AVAILABLE — LIMITED SPOTS',
         'hero-title': 'The CS2 server for the<br /><span class="title-highlight"><span class="title-text">Spanish-speaking community</span><span class="title-underline"></span></span>',

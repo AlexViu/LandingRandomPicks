@@ -1,0 +1,37 @@
+---
+import { ADSENSE_CLIENT } from '../lib/ads';
+
+interface Props {
+  unit: string;
+}
+const { unit } = Astro.props;
+const enabled = Boolean(ADSENSE_CLIENT && unit);
+---
+{enabled && (
+  <aside class="ad-banner">
+    <span class="ad-label" data-i18n="ad-label">Publicidad</span>
+    <ins
+      class="adsbygoogle"
+      style="display:block"
+      data-ad-client={ADSENSE_CLIENT}
+      data-ad-slot={unit}
+      data-ad-format="horizontal"
+      data-full-width-responsive="false"
+    ></ins>
+    <script is:inline>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+  </aside>
+)}
+
+<style>
+  .ad-banner { max-width: 970px; margin: 32px auto; padding: 0 24px; text-align: center; }
+  .ad-label {
+    display: block; margin-bottom: 6px;
+    font-size: 0.65rem; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted);
+  }
+  /* Hueco reservado para que la página no salte cuando carga el anuncio. */
+  .ad-banner ins { min-height: 90px; }
+  @media (max-width: 600px) {
+    .ad-banner { padding: 0 16px; }
+    .ad-banner ins { min-height: 100px; }
+  }
+</style>
