@@ -60,15 +60,27 @@ Astro.response.headers.set('Cache-Control', 'public, max-age=60');
       <a href="/" class="logo-img-link">
         <img src="/random_picks_logo.jpg" alt="RandomPicks" style="height:44px;width:72px;object-fit:cover;object-position:center;border-radius:8px;display:block;" />
       </a>
+      <ul class="nav-links">
+        <li><a href="/" data-i18n="nav-home">Home</a></li>
+        <li><a href="https://discord.gg/HSMZT6njnk" target="_blank" rel="noopener" class="nav-discord">Discord</a></li>
+        <li><a href="https://ko-fi.com/randompicks" target="_blank" rel="noopener" class="nav-kofi" data-i18n="nav-kofi">☕ Support us</a></li>
+      </ul>
       <div class="nav-right">
-        <a href="/" class="nav-back" data-i18n="rk-back">← Volver al inicio</a>
         <button id="lang-toggle" class="lang-toggle" aria-label="Switch to English" title="Switch to English">
           <span class="lang-globe" aria-hidden="true">🌐</span>
           <span class="lang-es lang-active" id="lang-es">ES</span>
           <span class="lang-sep" aria-hidden="true">|</span>
           <span class="lang-en lang-inactive" id="lang-en">EN</span>
         </button>
+        <button class="hamburger" id="hamburger" aria-label="Menú" aria-controls="mobile-menu" aria-expanded="false">
+          <span></span><span></span><span></span>
+        </button>
       </div>
+    </div>
+    <div class="mobile-menu" id="mobile-menu">
+      <a href="/" data-i18n="nav-home">Home</a>
+      <a href="https://discord.gg/HSMZT6njnk" target="_blank" rel="noopener">Discord</a>
+      <a href="https://ko-fi.com/randompicks" target="_blank" rel="noopener" data-i18n="nav-kofi">☕ Support us</a>
     </div>
   </nav>
 
@@ -188,7 +200,7 @@ Astro.response.headers.set('Cache-Control', 'public, max-age=60');
   <script is:inline>
     var t = {
       es: {
-        'rk-back': '← Volver al inicio', 'rk-tag': 'RANKING BHOP', 'rk-title': 'Los más rápidos del servidor',
+        'nav-home': 'Home', 'nav-kofi': '☕ Support us', 'rk-tag': 'RANKING BHOP', 'rk-title': 'Los más rápidos del servidor',
         'rk-sub': 'Top 20 global por puntos. Elige un mapa para ver solo sus records.',
         'rk-map-label': 'Mapa', 'rk-search-label': 'Jugador',
         'rk-search-ph': 'Nombre o SteamID64', 'rk-all-maps': '🏆 Ranking global', 'rk-search-btn': 'Buscar', 'rk-clear': 'Limpiar',
@@ -202,7 +214,7 @@ Astro.response.headers.set('Cache-Control', 'public, max-age=60');
         'rk-footnote': 'Se actualiza cada minuto · Conéctate y entra en el ranking:',
       },
       en: {
-        'rk-back': '← Back to home', 'rk-tag': 'BHOP RANKING', 'rk-title': 'The fastest players on the server',
+        'nav-home': 'Home', 'nav-kofi': '☕ Support us', 'rk-tag': 'BHOP RANKING', 'rk-title': 'The fastest players on the server',
         'rk-sub': 'Global top 20 by points. Pick a map to see only its records.',
         'rk-map-label': 'Map', 'rk-search-label': 'Player',
         'rk-search-ph': 'Name or SteamID64', 'rk-all-maps': '🏆 Global ranking', 'rk-search-btn': 'Search', 'rk-clear': 'Clear',
@@ -253,6 +265,13 @@ Astro.response.headers.set('Cache-Control', 'public, max-age=60');
       applyLang(currentLang);
     });
 
+    var hamburger  = document.getElementById('hamburger');
+    var mobileMenu = document.getElementById('mobile-menu');
+    hamburger.addEventListener('click', function() {
+      var open = mobileMenu.classList.toggle('open');
+      hamburger.setAttribute('aria-expanded', open ? 'true' : 'false');
+    });
+
     // Al cambiar de mapa se carga directamente su lista (sin JS, sirve el botón Buscar).
     var mapSelect = document.getElementById('rk-map');
     if (mapSelect) mapSelect.addEventListener('change', function() { mapSelect.form.submit(); });
@@ -271,9 +290,14 @@ Astro.response.headers.set('Cache-Control', 'public, max-age=60');
     height: 64px; display: flex; align-items: center; justify-content: space-between;
   }
   .logo-img-link { display: flex; align-items: center; text-decoration: none; }
-  .nav-right { display: flex; align-items: center; gap: 16px; }
-  .nav-back { color: var(--muted); text-decoration: none; font-size: 0.88rem; font-weight: 500; transition: color 0.2s; }
-  .nav-back:hover { color: var(--text); }
+  .nav-links { display: flex; align-items: center; gap: 28px; list-style: none; margin: 0 0 0 auto; padding: 0 28px 0 0; }
+  .nav-links a { color: var(--muted); text-decoration: none; font-size: 0.88rem; font-weight: 500; transition: color 0.2s; letter-spacing: 0.02em; }
+  .nav-links a:hover { color: var(--text); }
+  .nav-discord { color: var(--discord) !important; border: 1px solid var(--discord); padding: 5px 14px; border-radius: 6px; transition: background 0.2s !important; }
+  .nav-discord:hover { background: var(--discord) !important; color: white !important; }
+  .nav-kofi { color: var(--orange) !important; border: 1px solid var(--orange); padding: 5px 14px; border-radius: 6px; transition: background 0.2s !important; }
+  .nav-kofi:hover { background: var(--orange) !important; color: white !important; }
+  .nav-right { display: flex; align-items: center; gap: 12px; }
   .lang-toggle {
     display: inline-flex; align-items: center; gap: 5px;
     background: rgba(255,255,255,0.04); border: 1px solid var(--border); border-radius: 8px;
@@ -287,6 +311,17 @@ Astro.response.headers.set('Cache-Control', 'public, max-age=60');
   .lang-sep { color: var(--border); font-weight: 400; }
   .lang-inactive { color: var(--muted); transition: color 0.15s; }
   .lang-toggle:hover .lang-inactive { color: var(--text); }
+  .hamburger { display: none; flex-direction: column; gap: 5px; background: none; border: none; cursor: pointer; padding: 4px; }
+  .hamburger span { display: block; width: 24px; height: 2px; background: var(--text); border-radius: 2px; transition: 0.3s; }
+  .mobile-menu { display: none; flex-direction: column; padding: 16px 24px 20px; gap: 12px; border-top: 1px solid var(--border); }
+  .mobile-menu a { color: var(--muted); text-decoration: none; font-weight: 500; padding: 8px 0; border-bottom: 1px solid var(--border); }
+  .mobile-menu.open { display: flex; }
+  @media (max-width: 768px) {
+    .nav-links { display: none; }
+    .hamburger { display: flex; }
+    .lang-sep, .lang-inactive { display: none; }
+    .lang-toggle { padding: 5px 9px; }
+  }
 
   /* ── Fondo ── */
   .rk-bg { position: fixed; inset: 0; z-index: -1; overflow: hidden; pointer-events: none; }
@@ -448,7 +483,6 @@ Astro.response.headers.set('Cache-Control', 'public, max-age=60');
   }
   @media (max-width: 600px) {
     .nav-inner { padding: 0 16px; }
-    .nav-back { font-size: 0.8rem; }
     .lang-sep, .lang-inactive { display: none; }
     .ranking-page { padding: 92px 16px 56px; }
     .rk-header { margin-bottom: 24px; }
