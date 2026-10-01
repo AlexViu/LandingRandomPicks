@@ -1,4 +1,6 @@
 ---
+import { ADSENSE_CLIENT } from '../lib/ads';
+
 interface Props {
   title?: string;
   description?: string;
@@ -115,6 +117,10 @@ const canonical = new URL(Astro.url.pathname, url).href;
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@700&family=Inter:wght@400;500&display=swap" />
     <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+
+    {ADSENSE_CLIENT && (
+      <script is:inline async src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${ADSENSE_CLIENT}`} crossorigin="anonymous"></script>
+    )}
   </head>
   <body>
     <slot />

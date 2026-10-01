@@ -1,5 +1,7 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import AdBanner from '../components/AdBanner.astro';
+import { AD_SLOTS } from '../lib/ads';
 import { fetchGlobalTop, fetchMapTop, fetchMaps, fetchPlayerPbOnMap, fetchPlayerRank } from '../lib/ranking';
 import type { MapRow } from '../lib/ranking';
 
@@ -191,6 +193,8 @@ Astro.response.headers.set('Cache-Control', 'public, max-age=60');
       )}
     </section>
 
+    <AdBanner unit={AD_SLOTS.ranking} />
+
     <p class="rk-footnote">
       <span data-i18n="rk-footnote">Se actualiza cada minuto · Conéctate y entra en el ranking:</span>
       <code>connect cs2.randompicks.es:27015</code>
@@ -200,6 +204,7 @@ Astro.response.headers.set('Cache-Control', 'public, max-age=60');
   <script is:inline>
     var t = {
       es: {
+        'ad-label': 'Publicidad',
         'nav-home': 'Home', 'nav-kofi': '☕ Support us', 'rk-tag': 'RANKING MINIGAMES', 'rk-title': 'Los más rápidos del servidor',
         'rk-sub': 'Top 20 global por puntos. Elige un mapa para ver solo sus records.',
         'rk-map-label': 'Mapa', 'rk-search-label': 'Jugador',
@@ -214,6 +219,7 @@ Astro.response.headers.set('Cache-Control', 'public, max-age=60');
         'rk-footnote': 'Se actualiza cada minuto · Conéctate y entra en el ranking:',
       },
       en: {
+        'ad-label': 'Advertisement',
         'nav-home': 'Home', 'nav-kofi': '☕ Support us', 'rk-tag': 'MINIGAMES RANKING', 'rk-title': 'The fastest players on the server',
         'rk-sub': 'Global top 20 by points. Pick a map to see only its records.',
         'rk-map-label': 'Map', 'rk-search-label': 'Player',
