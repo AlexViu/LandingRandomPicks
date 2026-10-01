@@ -7,7 +7,7 @@
 //
 // Solo se usan estos bloques manuales: en el panel de AdSense hay que dejar
 // desactivados los anuncios automáticos (anclados, intersticiales, vignettes).
-export const ADSENSE_CLIENT = '';
+export const ADSENSE_CLIENT = 'ca-pub-2583156431916553';
 
 export const AD_SLOTS = {
   landing: '',
