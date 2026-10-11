@@ -1,0 +1,101 @@
+---
+import GuideLayout from '../../components/GuideLayout.astro';
+---
+
+<GuideLayout
+  title="Guía de surf en CS2: rampas, velocidad y tiers de mapas — RandomPicks"
+  description="Cómo surfear en CS2: mantenerse en la rampa, ganar velocidad, pasar de una rampa a otra y qué significan los tiers de los mapas. Guía para empezar en servidores de surf."
+  heading="Guía de surf en CS2"
+  intro="En surf no corres ni saltas: te deslizas por rampas inclinadas aprovechando un fallo de las físicas de Source que se convirtió en modo de juego. Al principio parece imposible quedarse encima; en cuanto entiendes por qué te caes, se vuelve muy adictivo."
+  updated="11 de octubre de 2026"
+  slug="surf"
+>
+  <h2>Por qué no te caes de la rampa</h2>
+  <p>
+    Las rampas de surf están tan inclinadas que el juego no las considera suelo: no puedes andar sobre ellas.
+    Pero si empujas tu personaje <strong>contra</strong> la rampa, esa fuerza te sostiene y la gravedad se
+    convierte en velocidad a lo largo de la pendiente. Todo el surf se reduce a eso: mantener la presión
+    contra la rampa mientras te deslizas.
+  </p>
+
+  <h2>Los controles</h2>
+  <ul>
+    <li>
+      <strong>Si la rampa está a tu izquierda, mantén <kbd>A</kbd>. Si está a tu derecha, mantén
+      <kbd>D</kbd>.</strong> Es la tecla que te empuja hacia la rampa.
+    </li>
+    <li>
+      <strong>No pulses la <kbd>W</kbd> encima de la rampa.</strong> Te empuja hacia arriba, te frena y
+      suele acabar en caída.
+    </li>
+    <li>
+      <strong>No saltes para subir a la rampa.</strong> Déjate caer sobre ella desde arriba, a ser posible
+      cerca de la parte alta, con la tecla lateral ya pulsada.
+    </li>
+    <li>
+      <strong>El ratón dirige.</strong> Mira hacia donde quieres ir a lo largo de la rampa; giros pequeños y
+      suaves. Si apuntas hacia abajo de la rampa, ganas velocidad pero bajas; si apuntas hacia arriba, subes y frenas.
+    </li>
+  </ul>
+
+  <h2>Tu primera rampa, paso a paso</h2>
+  <ol>
+    <li>Al salir de la zona de inicio, avanza hasta el borde de la plataforma frente a la primera rampa.</li>
+    <li>Fíjate en a qué lado tienes la rampa y mantén pulsada la tecla de ese lado.</li>
+    <li>Déjate caer sobre la rampa sin tocar la <kbd>W</kbd>.</li>
+    <li>Mira hacia delante, siguiendo la rampa. Si notas que resbalas hacia abajo, gira un poco el ratón hacia arriba.</li>
+    <li>
+      Al final de la rampa saldrás disparado por el aire hacia la siguiente. Mientras vuelas puedes hacer
+      strafes igual que en bhop (tecla lateral + ratón hacia el mismo lado) para corregir la trayectoria.
+    </li>
+  </ol>
+  <div class="tip">
+    <p>
+      Si te caes a mitad de rampa casi siempre es por una de estas tres cosas: has soltado la tecla lateral,
+      has pulsado la <kbd>W</kbd> o has girado el ratón demasiado hacia abajo.
+    </p>
+  </div>
+
+  <h2>Pasar de una rampa a otra</h2>
+  <p>
+    Lo difícil del surf no es mantenerse en una rampa, sino enlazarlas. Intenta aterrizar en la siguiente
+    rampa <strong>lo más arriba posible</strong>: te deja más recorrido para corregir y más altura para el
+    siguiente salto. Si llegas demasiado bajo, apenas te quedará margen antes de caer.
+  </p>
+  <p>
+    En el aire, los strafes te permiten ajustar la dirección sin perder velocidad. No hace falta que sean
+    grandes: pequeños toques de tecla lateral con el ratón acompañando suelen bastar para alinear el
+    aterrizaje.
+  </p>
+
+  <h2>Qué significan los tiers</h2>
+  <p>
+    Los mapas de surf se clasifican por <strong>tiers</strong> (niveles de dificultad). El tier del mapa
+    actual aparece en el HUD del servidor.
+  </p>
+  <table>
+    <thead><tr><th>Tier</th><th>Qué esperar</th></tr></thead>
+    <tbody>
+      <tr><td>Tier 1</td><td>Rampas anchas, saltos cortos y poco castigo. Para aprender.</td></tr>
+      <tr><td>Tier 2</td><td>Rampas más estrechas y algún salto que exige llegar con velocidad.</td></tr>
+      <tr><td>Tier 3</td><td>Recorridos largos, transiciones rápidas y menos margen de error.</td></tr>
+      <tr><td>Tier 4 en adelante</td><td>Mapas técnicos para jugadores con experiencia.</td></tr>
+    </tbody>
+  </table>
+  <p>
+    Nuestro <a href="/servidores">servidor de surf</a> rota mapas de tier 1 a 3, así que puedes empezar
+    desde cero. Si es tu primera vez, <code>surf_how2surf</code> es un mapa tutorial pensado precisamente
+    para practicar lo básico.
+  </p>
+
+  <h2>Etapas, tiempos y ranking</h2>
+  <p>
+    Muchos mapas están divididos en <strong>etapas</strong>: tramos con su propio tiempo, separados por
+    zonas de control. El servidor guarda tu mejor tiempo total y el de cada etapa, de modo que puedes
+    mejorar un tramo concreto aunque no batas tu marca general.
+  </p>
+  <p>
+    Con <code>!top</code> ves los mejores tiempos del mapa y con <code>!rank</code> tu posición. Los tiempos
+    también aparecen en el <a href="/ranking">ranking</a> de la web, donde puedes filtrar por mapa.
+  </p>
+</GuideLayout>

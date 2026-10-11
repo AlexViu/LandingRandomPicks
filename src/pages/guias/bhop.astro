@@ -1,0 +1,129 @@
+---
+import GuideLayout from '../../components/GuideLayout.astro';
+---
+
+<GuideLayout
+  title="Guía de bhop en CS2: cómo ganar velocidad con los strafes — RandomPicks"
+  description="Guía de bunny hop para CS2 en servidores con autobhop: cómo hacer air strafes, sincronizar ratón y teclado, mantener la velocidad y mejorar tus tiempos en los mapas bhop."
+  heading="Guía de bhop en CS2"
+  intro="El bunny hop (bhop) consiste en encadenar saltos sin perder velocidad y, sobre todo, ganarla en el aire. En nuestro servidor el salto es automático, así que todo el trabajo está en los strafes: la combinación de ratón y teclas laterales que te acelera."
+  updated="11 de octubre de 2026"
+  slug="bhop"
+>
+  <h2>Cómo está configurado el servidor</h2>
+  <p>
+    Cada servidor de bhop tiene sus físicas. Saber cuáles son te ahorra frustración cuando algo no sale
+    como en otro sitio:
+  </p>
+  <ul>
+    <li>
+      <strong>Autobhop activado.</strong> Mantén pulsado el salto (o la rueda del ratón si la tienes asignada)
+      y saltarás en cuanto toques el suelo. No hace falta clavar el momento del salto.
+    </li>
+    <li>
+      <strong>Sin fatiga de salto.</strong> No pierdes velocidad por encadenar saltos seguidos, ni al agacharte.
+    </li>
+    <li>
+      <strong>Aceleración en el aire alta</strong> (<code>sv_airaccelerate 150</code>, el valor habitual en
+      servidores de bhop y KZ). Con buenos strafes la velocidad sube rápido.
+    </li>
+    <li>
+      <strong>Salto algo más alto que el de serie</strong> (<code>sv_jump_impulse 330</code> frente a los
+      301,99 de CS2), pensado para que los saltos difíciles de los mapas de minigames sean alcanzables.
+    </li>
+    <li>
+      <strong>Velocidad máxima al salir de la zona de inicio: 320.</strong> No sirve coger carrerilla dentro
+      de la zona de salida; la velocidad se recorta al cruzarla.
+    </li>
+  </ul>
+
+  <h2>La idea clave: no aceleras con la W</h2>
+  <p>
+    En el suelo te mueves con la <kbd>W</kbd>, pero en el aire la <kbd>W</kbd> apenas suma y, mal usada,
+    frena. Lo que acelera es <strong>girar el ratón hacia un lado mientras mantienes la tecla de ese mismo
+    lado</strong>:
+  </p>
+  <ul>
+    <li>Ratón hacia la izquierda + <kbd>A</kbd>.</li>
+    <li>Ratón hacia la derecha + <kbd>D</kbd>.</li>
+  </ul>
+  <p>
+    Cada uno de esos movimientos es un <em>strafe</em>. Si la tecla y el ratón van en sentidos distintos, o
+    pulsas las dos teclas a la vez, pierdes velocidad en lugar de ganarla.
+  </p>
+
+  <h2>Paso a paso para empezar</h2>
+  <ol>
+    <li>Coge un poco de carrerilla con la <kbd>W</kbd> y mantén el salto.</li>
+    <li>En cuanto despegues, <strong>suelta la W</strong>.</li>
+    <li>
+      Haz un strafe a la izquierda (<kbd>A</kbd> + ratón a la izquierda) durante el primer salto y uno a la
+      derecha (<kbd>D</kbd> + ratón a la derecha) durante el siguiente. Sigue alternando.
+    </li>
+    <li>
+      Mueve el ratón de forma suave y continua, no a tirones. Es mejor un giro amplio y constante que un
+      golpe seco.
+    </li>
+    <li>Mira el velocímetro del HUD: si el número sube salto a salto, lo estás haciendo bien.</li>
+  </ol>
+  <div class="tip">
+    <p>
+      Practica primero en línea recta en una zona abierta, sin preocuparte del recorrido. Cuando seas capaz
+      de pasar de 250 a 400-500 de velocidad en unos pocos saltos, ya puedes centrarte en los mapas.
+    </p>
+  </div>
+
+  <h2>Errores habituales</h2>
+  <ul>
+    <li>
+      <strong>Girar demasiado rápido.</strong> Si mueves el ratón más rápido de lo que el juego puede
+      convertir en velocidad, el giro "se pierde" y frenas. Baja la velocidad del giro hasta que el número
+      vuelva a subir.
+    </li>
+    <li>
+      <strong>Solapar teclas.</strong> Pasar de <kbd>A</kbd> a <kbd>D</kbd> sin soltar la primera anula el
+      strafe durante ese instante. Suelta una antes de pulsar la otra.
+    </li>
+    <li>
+      <strong>Mantener la W en el aire.</strong> Es el hábito más difícil de quitar. Si te cuesta, prueba a
+      apoyar el dedo fuera de la tecla en cuanto saltas.
+    </li>
+    <li>
+      <strong>Quedarse en un bloque.</strong> Muchos mapas tienen plataformas que te devuelven atrás si
+      permaneces encima más de una fracción de segundo. Con el salto mantenido no deberías tocarlas más de
+      lo necesario.
+    </li>
+  </ul>
+
+  <h2>Mejorar tus tiempos</h2>
+  <p>
+    Cada mapa tiene una zona de salida y una de llegada; el temporizador del HUD arranca al salir de la
+    primera. Algunas ideas para bajar tiempos:
+  </p>
+  <ul>
+    <li>
+      <strong>Aprende el recorrido antes de correr.</strong> Hacer el mapa despacio una vez y fijarte en los
+      giros vale más que diez intentos a toda velocidad.
+    </li>
+    <li>
+      <strong>Aprovecha la velocidad en los giros.</strong> Un strafe largo hacia el lado del giro te
+      permite cambiar de dirección sin frenar.
+    </li>
+    <li>
+      <strong>Compara con los mejores.</strong> En el <a href="/ranking">ranking</a> puedes elegir un mapa y
+      ver los mejores tiempos. En el juego, <code>!top</code> muestra el top del mapa actual y
+      <code>!rank</code> tu posición.
+    </li>
+  </ul>
+
+  <h2>Cómo se calculan los puntos</h2>
+  <p>
+    Cada vez que completas un mapa, el servidor te da puntos según tu posición en ese mapa respecto al resto
+    de jugadores: cuanto mejor sea tu tiempo comparado con los demás, más puntos. La suma de todos los mapas
+    es tu puntuación global del <a href="/ranking">ranking</a>.
+  </p>
+  <p>
+    Aunque no mejores tu marca, terminar un mapa también suma unos puntos de participación (un número
+    limitado de veces), así que jugar a menudo cuenta. Por debajo de 1000 puntos apareces como "sin rango".
+  </p>
+</GuideLayout>

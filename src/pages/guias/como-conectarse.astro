@@ -1,0 +1,87 @@
+---
+import GuideLayout from '../../components/GuideLayout.astro';
+---
+
+<GuideLayout
+  title="Cómo entrar a un servidor comunitario de CS2 (consola y connect) — RandomPicks"
+  description="Cómo activar la consola de CS2, usar el comando connect, guardar un servidor en favoritos y solucionar los problemas más comunes al entrar en un servidor comunitario."
+  heading="Cómo entrar a un servidor comunitario de CS2"
+  intro="El matchmaking de CS2 te lleva a servidores de Valve. Los servidores comunitarios, como los nuestros, los montan jugadores con sus propios modos y mapas, y para entrar hay que indicar su dirección. Hay tres formas de hacerlo."
+  updated="11 de octubre de 2026"
+  slug="como-conectarse"
+>
+  <h2>1. Con un enlace (lo más rápido)</h2>
+  <p>
+    En la página de <a href="/servidores">servidores</a> cada servidor tiene un botón <strong>Conectar</strong>.
+    Abre un enlace <code>steam://connect/…</code>: Steam pregunta si quieres abrir CS2 y el juego arranca
+    directamente en el servidor. Si el navegador no hace nada, es que Steam no está abierto o el navegador
+    tiene bloqueados los enlaces a aplicaciones externas; en ese caso usa la consola.
+  </p>
+
+  <h2>2. Desde la consola del juego</h2>
+  <h3>Activar la consola</h3>
+  <ol>
+    <li>En CS2 abre <strong>Ajustes → Juego</strong>.</li>
+    <li>Pon <strong>Activar consola para desarrolladores (~)</strong> en <strong>Sí</strong>.</li>
+    <li>Pulsa la tecla que está a la izquierda del <kbd>1</kbd> (en teclados españoles es <kbd>º</kbd>).</li>
+  </ol>
+  <p>
+    Si esa tecla no abre nada, en <strong>Ajustes → Teclado y ratón</strong> puedes asignar
+    "Activar/desactivar consola" a otra tecla.
+  </p>
+
+  <h3>Usar el comando connect</h3>
+  <p>Escribe en la consola la dirección del servidor y pulsa Intro:</p>
+  <table>
+    <thead><tr><th>Servidor</th><th>Comando</th></tr></thead>
+    <tbody>
+      <tr><td>Minigames y bhop</td><td><code>connect cs2.randompicks.es:27015</code></td></tr>
+      <tr><td>Surf (tier 1 a 3)</td><td><code>connect cs2.randompicks.es:27016</code></td></tr>
+    </tbody>
+  </table>
+  <p>
+    El número después de los dos puntos es el puerto: en una misma máquina puede haber varios servidores y
+    el puerto indica a cuál quieres entrar. Si lo omites, CS2 usa el 27015.
+  </p>
+
+  <h2>3. Desde el buscador de servidores comunitarios</h2>
+  <p>
+    En el menú <strong>Jugar</strong>, el buscador de servidores de la comunidad abre la lista clásica
+    de Steam. En la pestaña <strong>Favoritos</strong> puedes añadir un servidor por su dirección para tenerlo
+    siempre a mano y ver cuánta gente hay antes de entrar. Es lo más cómodo si vas a volver a menudo.
+  </p>
+
+  <h2>La primera vez tarda más: los mapas del Workshop</h2>
+  <p>
+    Casi todos los mapas de minigames, bhop y surf son mapas de la comunidad publicados en el Workshop de
+    Steam. Cuando el servidor cambia a un mapa que no tienes, CS2 lo descarga antes de dejarte entrar. Según
+    el mapa pueden ser desde unos pocos MB hasta varios cientos, así que la primera vez en cada mapa la carga
+    es más lenta. Después queda guardado y entra al momento.
+  </p>
+  <div class="tip">
+    <p>
+      Si una descarga se queda atascada, sal al menú y vuelve a conectar. Si sigue igual, en Steam,
+      <strong>Propiedades de CS2 → Archivos instalados → Verificar integridad</strong> repara descargas a medias.
+    </p>
+  </div>
+
+  <h2>Problemas frecuentes</h2>
+  <ul>
+    <li>
+      <strong>"Server is full" / servidor lleno.</strong> Espera un par de minutos: en minigames la gente entra
+      y sale a menudo entre mapas.
+    </li>
+    <li>
+      <strong>La conexión se corta al cargar.</strong> Suele coincidir con un cambio de mapa: el servidor
+      estaba cargando el siguiente. Vuelve a conectar pasados unos segundos.
+    </li>
+    <li>
+      <strong>Ping alto.</strong> Los servidores están en Europa. Desde España lo normal es un ping bajo; si
+      juegas desde América notarás más latencia, sobre todo en bhop y surf, donde cada salto cuenta.
+    </li>
+    <li>
+      <strong>No ves el chat de comandos.</strong> Los comandos del servidor se escriben en el chat
+      (<kbd>Y</kbd>) empezando por <code>!</code>, por ejemplo <code>!rtv</code>. No hace falta la consola para eso.
+    </li>
+  </ul>
+</GuideLayout>
