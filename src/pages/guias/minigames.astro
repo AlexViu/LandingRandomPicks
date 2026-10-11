@@ -1,0 +1,104 @@
+---
+import GuideLayout from '../../components/GuideLayout.astro';
+---
+
+<GuideLayout
+  title="Minigames en CS2: votaciones de mapa, créditos y tienda — RandomPicks"
+  description="Cómo funciona un servidor de minigames de CS2: qué son los mapas mg_, cómo votar el cambio de mapa con !rtv y !nominate, cómo ganar créditos y qué se compra en la tienda."
+  heading="Minigames: votaciones, créditos y tienda"
+  intro="Un servidor de minigames no tiene un único modo de juego: cada mapa trae el suyo. Esta página explica qué tipos de mapas vas a encontrar y cómo funcionan las herramientas del servidor que usarás en cada partida."
+  updated="11 de octubre de 2026"
+  slug="minigames"
+>
+  <h2>Qué es un mapa de minigames</h2>
+  <p>
+    Los mapas de minigames (los que empiezan por <code>mg_</code>) son mapas de la comunidad que incluyen sus
+    propias reglas. Hay de varios tipos:
+  </p>
+  <ul>
+    <li>
+      <strong>Courses (recorridos).</strong> Mapas como <code>mg_sonic_course_v2</code>,
+      <code>mg_metal_course_v3</code> o <code>mg_simpsons_course_v2</code>: una carrera de obstáculos con
+      saltos, plataformas y trampas. Gana quien llega antes al final, y el servidor cronometra tu tiempo.
+    </li>
+    <li>
+      <strong>Mapas de pruebas por rondas.</strong> Cada ronda el mapa elige un minijuego distinto (un duelo,
+      una prueba de saltos, una de puntería…) y los supervivientes pasan a la siguiente.
+    </li>
+    <li>
+      <strong>Mapas de salto y escalada.</strong> Como <code>mg_acrophobia</code>: subir lo más alto posible sin caerse.
+    </li>
+  </ul>
+  <p>
+    Algunos mapas cambian la gravedad o la velocidad durante la partida. El servidor las restablece al
+    cambiar de mapa, así que no se arrastran a la siguiente.
+  </p>
+
+  <h2>Cambiar de mapa: !rtv</h2>
+  <p>
+    El mapa no lo elige un administrador: lo votáis los jugadores. Hay dos momentos en los que se vota.
+  </p>
+  <h3>Votación a final de mapa</h3>
+  <p>
+    Dos minutos antes de que se acabe el tiempo del mapa aparece una votación con varios mapas para elegir
+    el siguiente. También aparece la opción de <strong>alargar el mapa 10 minutos</strong>, hasta dos veces
+    seguidas, por si la partida está interesante.
+  </p>
+  <h3>Rock the vote (votar para cambiar ya)</h3>
+  <p>
+    Si el mapa actual no gusta, escribe <code>!rtv</code> en el chat. Cuando lo ha pedido el 60 % de los
+    jugadores, se abre una votación inmediata. Detalles:
+  </p>
+  <ul>
+    <li>No se puede pedir hasta pasado minuto y medio desde que empieza el mapa, para dar tiempo a todo el mundo a cargar.</li>
+    <li>La votación dura 30 segundos y ofrece 5 mapas, más la opción de quedarse en el actual.</li>
+    <li>Los 3 últimos mapas jugados no aparecen, para que la rotación no se repita.</li>
+  </ul>
+
+  <h3>Comandos de votación</h3>
+  <table>
+    <thead><tr><th>Comando</th><th>Para qué sirve</th></tr></thead>
+    <tbody>
+      <tr><td><code>!rtv</code></td><td>Pedir una votación para cambiar de mapa.</td></tr>
+      <tr><td><code>!nominate</code></td><td>Proponer un mapa para que aparezca en la próxima votación. Puedes escribir parte del nombre: <code>!nominate sonic</code>.</td></tr>
+      <tr><td><code>!nomlist</code></td><td>Ver qué mapas están ya nominados.</td></tr>
+      <tr><td><code>!timeleft</code></td><td>Ver cuánto tiempo le queda al mapa actual.</td></tr>
+    </tbody>
+  </table>
+
+  <h2>Créditos y tienda</h2>
+  <p>
+    Jugando en el servidor ganas <strong>créditos</strong>: 10 por cada minuto de juego activo (1 si estás
+    ausente) y 1 por cada eliminación. Durante el calentamiento no se ganan. No se compran con dinero real;
+    solo se consiguen jugando.
+  </p>
+  <p>
+    Con ellos puedes comprar <strong>modelos de personaje</strong> en la tienda: desde agentes de CS2 hasta
+    personajes de series y anime. Solo cambian tu aspecto dentro del servidor; no dan ninguna ventaja ni
+    afectan a tu inventario de Steam.
+  </p>
+  <table>
+    <thead><tr><th>Comando</th><th>Para qué sirve</th></tr></thead>
+    <tbody>
+      <tr><td><code>!store</code> o <code>!shop</code></td><td>Abrir la tienda.</td></tr>
+      <tr><td><code>!credits</code></td><td>Ver cuántos créditos tienes.</td></tr>
+      <tr><td><code>!inv</code></td><td>Ver y equipar lo que ya has comprado.</td></tr>
+    </tbody>
+  </table>
+
+  <h2>Ranking</h2>
+  <p>
+    Los mapas con recorrido cronometrado (courses, bhop y surf) guardan tu mejor tiempo. Con
+    <code>!top</code> ves el top del mapa actual y con <code>!rank</code> tu posición global. La tabla completa,
+    con filtro por mapa y buscador de jugadores, está en el <a href="/ranking">ranking de la web</a>, que se
+    actualiza cada minuto. Si quieres saber cómo se reparten los puntos, está explicado al final de la
+    <a href="/guias/bhop">guía de bhop</a>.
+  </p>
+
+  <h2>Normas básicas</h2>
+  <p>
+    En minigames se juega con gente de todos los niveles y muchos están empezando. Pedimos lo de siempre:
+    nada de insultos ni de usar trampas, y no estropear la partida a los demás a propósito. Si alguien lo hace,
+    avisa a un administrador en el juego o en <a href="https://discord.gg/HSMZT6njnk" target="_blank" rel="noopener">Discord</a>.
+  </p>
+</GuideLayout>

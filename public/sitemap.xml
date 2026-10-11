@@ -15,6 +15,26 @@
     <changefreq>monthly</changefreq>
   </url>
   <url>
+    <loc>https://randompicks.es/guias</loc>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
+    <loc>https://randompicks.es/guias/como-conectarse</loc>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
+    <loc>https://randompicks.es/guias/bhop</loc>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
+    <loc>https://randompicks.es/guias/surf</loc>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
+    <loc>https://randompicks.es/guias/minigames</loc>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
     <loc>https://randompicks.es/privacidad</loc>
     <changefreq>yearly</changefreq>
   </url>

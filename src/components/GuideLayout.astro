@@ -1,0 +1,116 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Analytics from './Analytics.astro';
+import { GUIDES } from '../lib/guides';
+
+interface Props {
+  title: string;
+  description: string;
+  heading: string;
+  intro: string;
+  updated: string;
+  slug?: string;
+}
+const { title, description, heading, intro, updated, slug } = Astro.props;
+const others = GUIDES.filter((g) => g.slug !== slug);
+---
+
+<Layout title={title} description={description}>
+  <nav>
+    <div class="nav-inner">
+      <a href="/" class="logo-img-link">
+        <img src="/random_picks_logo.jpg" alt="RandomPicks" style="height:44px;width:72px;object-fit:cover;object-position:center;border-radius:8px;display:block;" />
+      </a>
+      <div class="nav-links">
+        <a href="/">Home</a>
+        <a href="/guias">Guías</a>
+        <a href="/servidores">Servidores</a>
+        <a href="/ranking">Ranking</a>
+      </div>
+    </div>
+  </nav>
+
+  <main class="guide">
+    {slug && <p class="crumbs"><a href="/guias">Guías</a> / {heading}</p>}
+    <h1>{heading}</h1>
+    <p class="guide-updated">Actualizado: {updated}</p>
+    <p class="guide-intro">{intro}</p>
+
+    <slot />
+
+    {others.length > 0 && (
+      <aside class="more">
+        <h2>{slug ? 'Otras guías' : 'Todas las guías'}</h2>
+        <ul>
+          {others.map((g) => (
+            <li><a href={`/guias/${g.slug}`}><strong>{g.title}</strong></a> — {g.summary}</li>
+          ))}
+        </ul>
+      </aside>
+    )}
+
+    <p class="guide-foot">
+      ¿Algo no está claro o ha cambiado en el servidor? Avísanos en
+      <a href="https://discord.gg/HSMZT6njnk" target="_blank" rel="noopener">Discord</a> ·
+      <a href="/privacidad">Privacidad</a>
+    </p>
+  </main>
+
+  <Analytics />
+</Layout>
+
+<style>
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    background: rgba(10,10,15,0.85);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--border);
+  }
+  .nav-inner {
+    max-width: 1200px; margin: 0 auto; padding: 0 24px;
+    height: 64px; display: flex; align-items: center; justify-content: space-between;
+  }
+  .logo-img-link { display: flex; align-items: center; text-decoration: none; }
+  .nav-links { display: flex; gap: 22px; }
+  .nav-links a { color: var(--muted); text-decoration: none; font-size: 0.88rem; font-weight: 500; transition: color 0.2s; }
+  .nav-links a:hover { color: var(--text); }
+
+  .guide { max-width: 760px; margin: 0 auto; padding: 112px 24px 72px; }
+  .crumbs { font-size: 0.82rem; color: var(--muted); margin-bottom: 10px; }
+  .crumbs a { color: var(--muted); }
+  .guide h1 { font-size: clamp(2rem, 5vw, 2.8rem); line-height: 1.1; margin-bottom: 8px; }
+  .guide-updated { color: var(--muted); font-size: 0.85rem; margin-bottom: 20px; }
+  .guide-intro { font-size: 1.08rem; color: var(--text) !important; margin-bottom: 28px !important; }
+  .guide :global(h2) { font-size: 1.4rem; margin: 36px 0 12px; color: var(--text); }
+  .guide :global(h3) { font-size: 1.1rem; margin: 24px 0 8px; color: var(--text); }
+  .guide :global(p), .guide :global(li) { color: #b9b9d0; margin-bottom: 12px; line-height: 1.65; }
+  .guide :global(ul), .guide :global(ol) { padding-left: 22px; margin-bottom: 12px; }
+  .guide :global(strong) { color: var(--text); }
+  .guide :global(a) { color: var(--orange); text-decoration: none; }
+  .guide :global(a:hover) { text-decoration: underline; }
+  .guide :global(code) {
+    font-family: ui-monospace, 'Cascadia Code', Consolas, monospace; font-size: 0.85em;
+    background: var(--bg2); border: 1px solid var(--border); border-radius: 6px; padding: 2px 6px; color: var(--text);
+  }
+  .guide :global(kbd) {
+    font-family: ui-monospace, 'Cascadia Code', Consolas, monospace; font-size: 0.82em; color: var(--text);
+    background: var(--bg3); border: 1px solid var(--border); border-bottom-width: 2px; border-radius: 5px; padding: 1px 6px;
+  }
+  .guide :global(table) { width: 100%; border-collapse: collapse; margin: 8px 0 20px; font-size: 0.92rem; }
+  .guide :global(th), .guide :global(td) { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--border); color: #b9b9d0; vertical-align: top; }
+  .guide :global(th) { color: var(--text); font-weight: 600; }
+  .guide :global(.tip) {
+    background: var(--bg2); border-left: 3px solid var(--orange); border-radius: 8px;
+    padding: 12px 16px; margin: 16px 0 20px;
+  }
+  .guide :global(.tip p:last-child) { margin-bottom: 0; }
+
+  .more { margin-top: 48px; padding-top: 8px; border-top: 1px solid var(--border); }
+  .guide-foot { margin-top: 32px; font-size: 0.85rem; color: var(--muted) !important; }
+
+  @media (max-width: 600px) {
+    .nav-inner { padding: 0 16px; }
+    .nav-links { gap: 14px; }
+    .guide { padding: 92px 16px 56px; }
+  }
+</style>
