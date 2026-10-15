@@ -2,7 +2,7 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://randompicks.es/</loc>
-    <lastmod>2026-06-05</lastmod>
+    <lastmod>2026-10-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
@@ -11,31 +11,31 @@
     <changefreq>hourly</changefreq>
   </url>
   <url>
-    <loc>https://randompicks.es/servidores</loc>
+    <loc>https://randompicks.es/servidores/</loc>
     <changefreq>monthly</changefreq>
   </url>
   <url>
-    <loc>https://randompicks.es/guias</loc>
+    <loc>https://randompicks.es/guias/</loc>
     <changefreq>monthly</changefreq>
   </url>
   <url>
-    <loc>https://randompicks.es/guias/como-conectarse</loc>
+    <loc>https://randompicks.es/guias/como-conectarse/</loc>
     <changefreq>monthly</changefreq>
   </url>
   <url>
-    <loc>https://randompicks.es/guias/bhop</loc>
+    <loc>https://randompicks.es/guias/bhop/</loc>
     <changefreq>monthly</changefreq>
   </url>
   <url>
-    <loc>https://randompicks.es/guias/surf</loc>
+    <loc>https://randompicks.es/guias/surf/</loc>
     <changefreq>monthly</changefreq>
   </url>
   <url>
-    <loc>https://randompicks.es/guias/minigames</loc>
+    <loc>https://randompicks.es/guias/minigames/</loc>
     <changefreq>monthly</changefreq>
   </url>
   <url>
-    <loc>https://randompicks.es/privacidad</loc>
+    <loc>https://randompicks.es/privacidad/</loc>
     <changefreq>yearly</changefreq>
   </url>
 </urlset>
