@@ -14,10 +14,10 @@ import { SERVERS } from '../lib/servers';
         <img src="/random_picks_logo.jpg" alt="RandomPicks" style="height:44px;width:72px;object-fit:cover;object-position:center;border-radius:8px;display:block;" />
       </a>
       <ul class="nav-links">
-        <li><a href="/" data-i18n="nav-home">Home</a></li>
+        <li><a href="/" data-i18n="nav-home">Inicio</a></li>
         <li><a href="/ranking" data-i18n="nav-ranking">Ranking</a></li>
         <li><a href="https://discord.gg/HSMZT6njnk" target="_blank" rel="noopener" class="nav-discord">Discord</a></li>
-        <li><a href="https://ko-fi.com/randompicks" target="_blank" rel="noopener" class="nav-kofi" data-i18n="nav-kofi">☕ Support us</a></li>
+        <li><a href="https://ko-fi.com/randompicks" target="_blank" rel="noopener" class="nav-kofi" data-i18n="nav-kofi">☕ Apóyanos</a></li>
       </ul>
       <div class="nav-right">
         <button id="lang-toggle" class="lang-toggle" aria-label="Switch to English" title="Switch to English">
@@ -26,16 +26,16 @@ import { SERVERS } from '../lib/servers';
           <span class="lang-sep" aria-hidden="true">|</span>
           <span class="lang-en lang-inactive" id="lang-en">EN</span>
         </button>
-        <button class="hamburger" id="hamburger" aria-label="Menú" aria-controls="mobile-menu" aria-expanded="false">
+        <button class="hamburger" id="hamburger" aria-label="Menú" data-i18n-aria-label="menu-label" aria-controls="mobile-menu" aria-expanded="false">
           <span></span><span></span><span></span>
         </button>
       </div>
     </div>
     <div class="mobile-menu" id="mobile-menu">
-      <a href="/" data-i18n="nav-home">Home</a>
+      <a href="/" data-i18n="nav-home">Inicio</a>
       <a href="/ranking" data-i18n="nav-ranking">Ranking</a>
       <a href="https://discord.gg/HSMZT6njnk" target="_blank" rel="noopener">Discord</a>
-      <a href="https://ko-fi.com/randompicks" target="_blank" rel="noopener" data-i18n="nav-kofi">☕ Support us</a>
+      <a href="https://ko-fi.com/randompicks" target="_blank" rel="noopener" data-i18n="nav-kofi">☕ Apóyanos</a>
     </div>
   </nav>
 
@@ -72,6 +72,7 @@ import { SERVERS } from '../lib/servers';
           </a>
         </div>
       ))}
+    </div>
     <p class="servers-hint" data-i18n="srv-hint">Necesitas tener Steam y CS2 instalados. Si no se abre, copia la IP y escribe connect en la consola.</p>
 
     <p class="rk-footnote rk-legal"><a href="/privacidad" data-i18n="footer-privacy">Privacidad</a></p>
@@ -82,12 +83,12 @@ import { SERVERS } from '../lib/servers';
   <script is:inline>
     var t = {
       es: {
-        'footer-privacy': 'Privacidad', 'nav-home': 'Home', 'nav-ranking': 'Ranking', 'nav-kofi': '☕ Support us',
-        'srv-tag': 'SERVIDORES', 'srv-title': 'Nuestros servidores', 'srv-sub': 'Estado en directo. Pulsa conectar y CS2 se abrirá directamente en el servidor.', 'srv-loading': 'Comprobando…', 'srv-online': 'Online', 'srv-offline': 'Offline', 'srv-unknown': 'Estado no disponible', 'srv-connect': 'Conectar', 'srv-map': 'Mapa', 'srv-hint': 'Necesitas tener Steam y CS2 instalados. Si no se abre, copia la IP y escribe connect en la consola.',
+        'footer-privacy': 'Privacidad', 'nav-home': 'Inicio', 'nav-ranking': 'Ranking', 'nav-kofi': '☕ Apóyanos',
+        'menu-label': 'Menú', 'srv-tag': 'SERVIDORES', 'srv-title': 'Nuestros servidores', 'srv-sub': 'Estado en directo. Pulsa conectar y CS2 se abrirá directamente en el servidor.', 'srv-loading': 'Comprobando…', 'srv-online': 'Online', 'srv-offline': 'Offline', 'srv-unknown': 'Estado no disponible', 'srv-connect': 'Conectar', 'srv-map': 'Mapa', 'srv-hint': 'Necesitas tener Steam y CS2 instalados. Si no se abre, copia la IP y escribe connect en la consola.',
       },
       en: {
         'footer-privacy': 'Privacy', 'nav-home': 'Home', 'nav-ranking': 'Ranking', 'nav-kofi': '☕ Support us',
-        'srv-tag': 'SERVERS', 'srv-title': 'Our servers', 'srv-sub': 'Live status. Hit connect and CS2 will open straight into the server.', 'srv-loading': 'Checking…', 'srv-online': 'Online', 'srv-offline': 'Offline', 'srv-unknown': 'Status unavailable', 'srv-connect': 'Connect', 'srv-map': 'Map', 'srv-hint': 'You need Steam and CS2 installed. If it doesn\'t open, copy the IP and type connect in the console.',
+        'menu-label': 'Menu', 'srv-tag': 'SERVERS', 'srv-title': 'Our servers', 'srv-sub': 'Live status. Hit connect and CS2 will open straight into the server.', 'srv-loading': 'Checking…', 'srv-online': 'Online', 'srv-offline': 'Offline', 'srv-unknown': 'Status unavailable', 'srv-connect': 'Connect', 'srv-map': 'Map', 'srv-hint': 'You need Steam and CS2 installed. If it doesn\'t open, copy the IP and type connect in the console.',
       },
     };
 
@@ -103,6 +104,10 @@ import { SERVERS } from '../lib/servers';
       document.querySelectorAll('[data-i18n]').forEach(function(el) {
         var key = el.getAttribute('data-i18n');
         if (dict[key] !== undefined) el.textContent = dict[key];
+      });
+      document.querySelectorAll('[data-i18n-aria-label]').forEach(function(el) {
+        var key = el.getAttribute('data-i18n-aria-label');
+        if (dict[key] !== undefined) el.setAttribute('aria-label', dict[key]);
       });
       var esEl = document.getElementById('lang-es');
       var enEl = document.getElementById('lang-en');

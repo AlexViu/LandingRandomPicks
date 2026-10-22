@@ -107,7 +107,7 @@ const ranks = [
         <img src="/random_picks_logo.jpg" alt="RandomPicks" style="height:44px;width:72px;object-fit:cover;object-position:center;border-radius:8px;display:block;" />
       </a>
       <ul class="nav-links">
-        <li><a href="#" data-i18n="nav-home">Home</a></li>
+        <li><a href="#" data-i18n="nav-home">Inicio</a></li>
         <li><a href="/servidores" data-i18n="nav-servers">Servidores</a></li>
         <li><a href="#modos" data-i18n="nav-modos">Modos</a></li>
         <li><a href="#progresion" data-i18n="nav-progression">Progresión</a></li>
@@ -115,7 +115,7 @@ const ranks = [
         <li><a href="/guias" data-i18n="nav-guides">Guías</a></li>
         <li><a href="/ranking" data-i18n="nav-ranking">Ranking</a></li>
         <li><a href="https://discord.gg/HSMZT6njnk" target="_blank" rel="noopener" class="nav-discord">Discord</a></li>
-        <li><a href="https://ko-fi.com/randompicks" target="_blank" rel="noopener" class="nav-kofi" data-i18n="nav-kofi">☕ Support us</a></li>
+        <li><a href="https://ko-fi.com/randompicks" target="_blank" rel="noopener" class="nav-kofi" data-i18n="nav-kofi">☕ Apóyanos</a></li>
       </ul>
       <div class="nav-right">
         <button id="lang-toggle" class="lang-toggle" aria-label="Switch to English" title="Switch to English">
@@ -124,13 +124,13 @@ const ranks = [
           <span class="lang-sep" aria-hidden="true">|</span>
           <span class="lang-en lang-inactive" id="lang-en">EN</span>
         </button>
-        <button class="hamburger" id="hamburger" aria-label="Menú">
+        <button class="hamburger" id="hamburger" aria-label="Menú" data-i18n-aria-label="menu-label">
           <span></span><span></span><span></span>
         </button>
       </div>
     </div>
     <div class="mobile-menu" id="mobile-menu">
-      <a href="#" data-i18n="nav-home">Home</a>
+      <a href="#" data-i18n="nav-home">Inicio</a>
       <a href="/servidores" data-i18n="nav-servers">Servidores</a>
       <a href="#modos" data-i18n="nav-modos">Modos</a>
       <a href="#progresion" data-i18n="nav-progression">Progresión</a>
@@ -180,7 +180,7 @@ const ranks = [
         </div>
         <span class="sp-sep">·</span>
         <div class="sp-item">
-          <span data-i18n="sp-welcome">Everyone welcome</span>
+          <span data-i18n="sp-welcome">Todos son bienvenidos</span>
         </div>
       </div>
 
@@ -196,14 +196,14 @@ const ranks = [
         <div class="server-ip" id="server-ip">
           <span class="ip-label" data-i18n="ip-label">CONECTAR AHORA</span>
           <code class="ip-text">cs2.randompicks.es:27015</code>
-          <button class="ip-copy" id="copy-btn" title="Copiar IP">
+          <button class="ip-copy" id="copy-btn" title="Copiar IP" data-i18n-title="copy-label">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
             <span id="copy-label" data-i18n="copy-label">Copiar IP</span>
           </button>
         </div>
         <div class="hero-gametracker">
           <a href="https://www.gametracker.com/server_info/159.195.150.62:27015/" target="_blank" rel="noopener">
-            <img src="https://cache.gametracker.com/server_info/159.195.150.62:27015/b_560_95_1.png" border="0" width="560" height="95" alt="GameTracker server stats" />
+            <img src="https://cache.gametracker.com/server_info/159.195.150.62:27015/b_560_95_1.png" border="0" width="560" height="95" alt="Estadísticas del servidor en GameTracker" data-i18n-alt="gt-alt" />
           </a>
         </div>
       </div>
@@ -271,7 +271,7 @@ const ranks = [
   <section class="section" id="modos">
     <div class="container">
       <div class="section-header">
-        <div class="section-tag" data-i18n="modes-tag">GAME MODES</div>
+        <div class="section-tag" data-i18n="modes-tag">MODOS DE JUEGO</div>
         <h2 class="section-title" data-i18n="modes-title">Todo lo que puedes jugar</h2>
         <p class="section-sub" data-i18n="modes-sub">Cuatro modos para cuatro tipos de jugador. Todos en el mismo servidor, todos gratis.</p>
       </div>
@@ -427,7 +427,7 @@ const ranks = [
       <div class="footer-inner">
         <p class="footer-text" data-i18n="footer-text">Servidor de minigames para CS2 · No afiliado con Valve Corporation</p>
         <div class="footer-links">
-          <a href="#" data-i18n="nav-home">Home</a>
+          <a href="#" data-i18n="nav-home">Inicio</a>
           <a href="#faq">FAQ</a>
           <a href="/guias" data-i18n="nav-guides">Guías</a>
           <a href="/ranking">Ranking</a>
@@ -446,19 +446,19 @@ const ranks = [
     var t = {
       es: {
         'ad-label': 'Publicidad', 'footer-privacy': 'Privacidad',
-        'nav-home': 'Home', 'nav-modos': 'Modos', 'nav-progression': 'Progresión', 'nav-faq': 'FAQ', 'nav-ranking': 'Ranking', 'nav-kofi': '☕ Support us', 'nav-servers': 'Servidores', 'nav-guides': 'Guías',
+        'nav-home': 'Inicio', 'nav-modos': 'Modos', 'nav-progression': 'Progresión', 'nav-faq': 'FAQ', 'nav-ranking': 'Ranking', 'nav-kofi': '☕ Apóyanos', 'nav-servers': 'Servidores', 'nav-guides': 'Guías',
         'hero-badge': 'ROL DE FUNDADOR DISPONIBLE — PLAZAS LIMITADAS',
         'hero-title': 'El servidor CS2 de la<br /><span class="title-highlight"><span class="title-text">comunidad hispanohablante</span><span class="title-underline"></span></span>',
         'hero-sub': 'Minigames, Bhop con rankings y tienda de skins — todo gratis. Arrancamos ahora y los primeros que entren consiguen el rol de fundador en Discord.',
-        'sp-server': 'Servidor activo 24/7', 'sp-community': 'Comunidad hispanohablante', 'sp-welcome': 'Everyone welcome',
+        'sp-server': 'Servidor activo 24/7', 'sp-community': 'Comunidad hispanohablante', 'sp-welcome': 'Todos son bienvenidos',
         'btn-discord': 'Entrar al Discord — consigue el rol de fundador',
         'btn-hint': 'Gratis · Sin registro previo · Rol de fundador para los primeros',
-        'ip-label': 'CONECTAR AHORA', 'copy-label': 'Copiar IP',
+        'ip-label': 'CONECTAR AHORA', 'copy-label': 'Copiar IP', 'menu-label': 'Menú', 'gt-alt': 'Estadísticas del servidor en GameTracker',
         'vs-0-title': 'Minigames & Bhop', 'vs-0-sub': 'Modos que rotan cada semana',
         'vs-1-title': 'Rankings reales', 'vs-1-sub': 'Tu progreso nunca se pierde',
         'vs-2-title': 'Skins por jugar', 'vs-2-sub': 'Sin pagar. Solo jugando.',
         'vs-3-title': 'Admins activos', 'vs-3-sub': 'Comunidad sin toxicidad',
-        'modes-tag': 'GAME MODES', 'modes-title': 'Todo lo que puedes jugar',
+        'modes-tag': 'MODOS DE JUEGO', 'modes-title': 'Todo lo que puedes jugar',
         'modes-sub': 'Cuatro modos para cuatro tipos de jugador. Todos en el mismo servidor, todos gratis.',
         'mode-0-tag': 'PRINCIPAL', 'mode-0-name': 'Mini Games',
         'mode-0-desc': 'El modo principal del servidor. Variedad de juegos, risas garantizadas y siempre algo nuevo cada semana.',
@@ -502,7 +502,7 @@ const ranks = [
         'perk-0': 'Rol de fundador permanente', 'perk-1': 'Voto en los modos que añadimos',
         'perk-2': 'Contacto directo con los admins', 'perk-3': 'Acceso a canales exclusivos',
         'btn-discord-big': 'Entrar al Discord y conseguir el rol',
-        'btn-kofi': '☕ Support us',
+        'btn-kofi': 'Apoyar el servidor',
         'discord-footnote': 'Gratis · Sin registro previo · El rol de fundador no estará disponible después del lanzamiento',
         'footer-text': 'Servidor de minigames para CS2 · No afiliado con Valve Corporation',
       },
@@ -515,7 +515,7 @@ const ranks = [
         'sp-server': 'Server active 24/7', 'sp-community': 'Spanish-speaking community', 'sp-welcome': 'Everyone welcome',
         'btn-discord': 'Join Discord — get the founder role',
         'btn-hint': 'Free · No sign-up required · Founder role for early members',
-        'ip-label': 'CONNECT NOW', 'copy-label': 'Copy IP',
+        'ip-label': 'CONNECT NOW', 'copy-label': 'Copy IP', 'menu-label': 'Menu', 'gt-alt': 'GameTracker server stats',
         'vs-0-title': 'Minigames & Bhop', 'vs-0-sub': 'Rotating modes every week',
         'vs-1-title': 'Real rankings', 'vs-1-sub': 'Your progress is never lost',
         'vs-2-title': 'Skins by playing', 'vs-2-sub': 'No payment. Just play.',
@@ -564,7 +564,7 @@ const ranks = [
         'perk-0': 'Permanent founder role', 'perk-1': 'Vote on the modes we add',
         'perk-2': 'Direct contact with admins', 'perk-3': 'Access to exclusive channels',
         'btn-discord-big': 'Join Discord and get the role',
-        'btn-kofi': '☕ Support us',
+        'btn-kofi': 'Support the server',
         'discord-footnote': 'Free · No sign-up required · Founder role will not be available after launch',
         'footer-text': 'CS2 minigames server · Not affiliated with Valve Corporation',
       },
@@ -580,6 +580,12 @@ const ranks = [
       document.querySelectorAll('[data-i18n-html]').forEach(function(el) {
         var key = el.getAttribute('data-i18n-html');
         if (dict[key] !== undefined) el.innerHTML = dict[key];
+      });
+      ['title', 'aria-label', 'alt'].forEach(function(attr) {
+        document.querySelectorAll('[data-i18n-' + attr + ']').forEach(function(el) {
+          var key = el.getAttribute('data-i18n-' + attr);
+          if (dict[key] !== undefined) el.setAttribute(attr, dict[key]);
+        });
       });
       var esEl = document.getElementById('lang-es');
       var enEl = document.getElementById('lang-en');
