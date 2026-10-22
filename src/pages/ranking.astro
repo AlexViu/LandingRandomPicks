@@ -1,7 +1,7 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import Analytics from '../components/Analytics.astro';
-import { fetchGlobalTop, fetchMapTop, fetchMaps, fetchPlayerPbOnMap, fetchPlayerRank } from '../lib/ranking';
+import { fetchAchievementsRank, fetchAchievementsTop, fetchGlobalTop, fetchMapTop, fetchMaps, fetchPlayerPbOnMap, fetchPlayerRank } from '../lib/ranking';
 import type { MapRow } from '../lib/ranking';
 
 // Se renderiza en cada petición (datos en vivo, con caché de 60 s en el servidor).
@@ -11,7 +11,9 @@ export const prerender = false;
 // records de ese mapa. El buscador filtra dentro de la lista que se está viendo.
 const LIMIT = 20;
 const search = (Astro.url.searchParams.get('q') ?? '').trim().slice(0, 64);
-const mapParam = (Astro.url.searchParams.get('map') ?? '').trim().slice(0, 128);
+// ?view=logros: ranking de puntos de logros (CourseAchievements) en vez del de tiempos.
+const achievements = Astro.url.searchParams.get('view') === 'logros';
+const mapParam = achievements ? '' : (Astro.url.searchParams.get('map') ?? '').trim().slice(0, 128);
 
 interface Row { pos: number; name: string; value: string; extra?: string; total?: number; }
 
@@ -22,10 +24,13 @@ let suggestions: string[] = [];
 let failed = false;
 
 try {
-  maps = await fetchMaps();
+  maps = achievements ? [] : await fetchMaps();
   const selected = mapParam ? maps.find((m) => m.map === mapParam) : undefined;
 
-  if (mapParam && !selected) {
+  if (achievements) {
+    rows = (search ? await fetchAchievementsRank(search) : await fetchAchievementsTop(LIMIT))
+      .map((r, i) => ({ pos: r.position ?? i + 1, name: r.name, value: `${r.points}`, extra: `pts · ${r.unlocked} 🏅` }));
+  } else if (mapParam && !selected) {
     // Mapa desconocido: no se consulta nada con él, solo se sugieren parecidos.
     suggestions = maps.map((m) => m.map).filter((m) => m.toLowerCase().includes(mapParam.toLowerCase())).slice(0, 5);
   } else if (selected) {
@@ -62,9 +67,9 @@ Astro.response.headers.set('Cache-Control', 'public, max-age=60');
         <img src="/random_picks_logo.jpg" alt="RandomPicks" style="height:44px;width:72px;object-fit:cover;object-position:center;border-radius:8px;display:block;" />
       </a>
       <ul class="nav-links">
-        <li><a href="/" data-i18n="nav-home">Home</a></li>
+        <li><a href="/" data-i18n="nav-home">Inicio</a></li>
         <li><a href="https://discord.gg/HSMZT6njnk" target="_blank" rel="noopener" class="nav-discord">Discord</a></li>
-        <li><a href="https://ko-fi.com/randompicks" target="_blank" rel="noopener" class="nav-kofi" data-i18n="nav-kofi">☕ Support us</a></li>
+        <li><a href="https://ko-fi.com/randompicks" target="_blank" rel="noopener" class="nav-kofi" data-i18n="nav-kofi">☕ Apóyanos</a></li>
       </ul>
       <div class="nav-right">
         <button id="lang-toggle" class="lang-toggle" aria-label="Switch to English" title="Switch to English">
@@ -73,15 +78,15 @@ Astro.response.headers.set('Cache-Control', 'public, max-age=60');
           <span class="lang-sep" aria-hidden="true">|</span>
           <span class="lang-en lang-inactive" id="lang-en">EN</span>
         </button>
-        <button class="hamburger" id="hamburger" aria-label="Menú" aria-controls="mobile-menu" aria-expanded="false">
+        <button class="hamburger" id="hamburger" aria-label="Menú" data-i18n-aria-label="menu-label" aria-controls="mobile-menu" aria-expanded="false">
           <span></span><span></span><span></span>
         </button>
       </div>
     </div>
     <div class="mobile-menu" id="mobile-menu">
-      <a href="/" data-i18n="nav-home">Home</a>
+      <a href="/" data-i18n="nav-home">Inicio</a>
       <a href="https://discord.gg/HSMZT6njnk" target="_blank" rel="noopener">Discord</a>
-      <a href="https://ko-fi.com/randompicks" target="_blank" rel="noopener" data-i18n="nav-kofi">☕ Support us</a>
+      <a href="https://ko-fi.com/randompicks" target="_blank" rel="noopener" data-i18n="nav-kofi">☕ Apóyanos</a>
     </div>
   </nav>
 
@@ -93,26 +98,39 @@ Astro.response.headers.set('Cache-Control', 'public, max-age=60');
 
   <main class="ranking-page">
     <header class="rk-header">
-      <div class="section-tag" data-i18n="rk-tag">RANKING MINIGAMES</div>
-      <h1 class="rk-title" data-i18n="rk-title">Los más rápidos del servidor</h1>
-      <p class="rk-sub" data-i18n="rk-sub">Top 20 global por puntos. Elige un mapa para ver solo sus records.</p>
+      {achievements ? <>
+        <div class="section-tag" data-i18n="rk-tag-ach">RANKING DE LOGROS</div>
+        <h1 class="rk-title" data-i18n="rk-title-ach">Cazadores de logros</h1>
+      </> : <>
+        <div class="section-tag" data-i18n="rk-tag">RANKING MINIGAMES</div>
+        <h1 class="rk-title" data-i18n="rk-title">Los más rápidos del servidor</h1>
+      </>}
+      {achievements
+        ? <p class="rk-sub" data-i18n="rk-sub-ach">Top 20 por puntos de logros. Desbloquéalos jugando en Minigames y Surf.</p>
+        : <p class="rk-sub" data-i18n="rk-sub">Top 20 global por puntos. Elige un mapa para ver solo sus records.</p>}
     </header>
 
-    <form class="rk-filters" method="get" action="/ranking">
-      <label class="rk-field rk-field-map">
+    <div class="rk-tabs" role="tablist">
+      <a href="/ranking" role="tab" aria-selected={!achievements} class={!achievements ? 'active' : ''} data-i18n="rk-tab-times">⏱️ Tiempos</a>
+      <a href="/ranking?view=logros" role="tab" aria-selected={achievements} class={achievements ? 'active' : ''} data-i18n="rk-tab-ach">🏅 Logros</a>
+    </div>
+
+    <form class={`rk-filters ${achievements ? 'is-ach' : ''}`} method="get" action="/ranking">
+      {achievements && <input type="hidden" name="view" value="logros" />}
+      {!achievements && <label class="rk-field rk-field-map">
         <span class="rk-label" data-i18n="rk-map-label">Mapa</span>
         <select name="map" id="rk-map">
           <option value="" data-i18n="rk-all-maps">🏆 Ranking global</option>
           {maps.map((m) => <option value={m.map} selected={m.map === mapParam}>{m.map}</option>)}
         </select>
-      </label>
+      </label>}
       <label class="rk-field rk-field-search">
         <span class="rk-label" data-i18n="rk-search-label">Jugador</span>
         <input type="search" name="q" value={search} maxlength="64" placeholder="Nombre o SteamID64" data-i18n-placeholder="rk-search-ph" />
       </label>
       <div class="rk-actions">
         <button type="submit" class="rk-btn" data-i18n="rk-search-btn">Buscar</button>
-        {(search || mapParam) && <a class="rk-clear" href="/ranking" data-i18n="rk-clear">Limpiar</a>}
+        {(search || mapParam) && <a class="rk-clear" href={achievements ? '/ranking?view=logros' : '/ranking'} data-i18n="rk-clear">Limpiar</a>}
       </div>
     </form>
 
@@ -120,7 +138,9 @@ Astro.response.headers.set('Cache-Control', 'public, max-age=60');
       <header class="board-head">
         <div>
           <span class={`board-kind ${isMap ? 'is-map' : ''}`}>
-            {isMap ? <span data-i18n="rk-kind-map">⏱️ Records del mapa</span> : <span id="board-title" data-i18n="rk-kind-global">🏆 Ranking global</span>}
+            {isMap ? <span data-i18n="rk-kind-map">⏱️ Records del mapa</span>
+              : achievements ? <span id="board-title" data-i18n="rk-kind-ach">🏅 Ranking de logros</span>
+              : <span id="board-title" data-i18n="rk-kind-global">🏆 Ranking global</span>}
           </span>
           {isMap && <h2 id="board-title" class="board-title">{mapParam}</h2>}
         </div>
@@ -158,7 +178,7 @@ Astro.response.headers.set('Cache-Control', 'public, max-age=60');
           <span class="board-empty-icon" aria-hidden="true">🔍</span>
           {search
             ? <p><span data-i18n="rk-no-player">Ningún jugador coincide con</span> <code>{search}</code>.</p>
-            : <p data-i18n="rk-no-data">Todavía no hay datos.</p>}
+            : <p data-i18n={achievements ? 'rk-no-ach' : 'rk-no-data'}>{achievements ? 'Nadie tiene logros todavía. ¡Sé el primero!' : 'Todavía no hay datos.'}</p>}
         </div>
       ) : (
         <>
@@ -174,7 +194,9 @@ Astro.response.headers.set('Cache-Control', 'public, max-age=60');
                   {r.pos <= 3 ? <span class="medal">{r.pos}</span> : <span>{r.pos}</span>}
                   {r.total !== undefined && <small class="row-total">/{r.total}</small>}
                 </span>
-                <span class="row-name" title={r.name || 'Desconocido'}>{r.name || 'Desconocido'}</span>
+                {r.name
+                  ? <span class="row-name" title={r.name}>{r.name}</span>
+                  : <span class="row-name" data-i18n="rk-unknown">Desconocido</span>}
                 <span class="row-value">
                   <strong>{r.value}</strong>
                   {r.extra && <small>{r.extra}</small>}
@@ -186,11 +208,34 @@ Astro.response.headers.set('Cache-Control', 'public, max-age=60');
       )}
 
       {!failed && !unknownMap && (
-        <footer class="board-foot" data-i18n={isMap ? 'rk-foot-map' : 'rk-foot-global'}>
-          {isMap ? 'Mejor tiempo de cada jugador en este mapa' : 'Puntos por posición relativa en cada mapa'}
+        <footer class="board-foot" data-i18n={isMap ? 'rk-foot-map' : achievements ? 'rk-foot-ach' : 'rk-foot-global'}>
+          {isMap ? 'Mejor tiempo de cada jugador en este mapa' : achievements ? 'Puntos de logros · 🏅 logros desbloqueados' : 'Puntos por posición relativa en cada mapa'}
         </footer>
       )}
     </section>
+
+    {achievements && (
+      <section class="ach-how" aria-labelledby="ach-how-title">
+        <h2 id="ach-how-title" data-i18n="ach-how-title">¿Cómo funcionan los logros?</h2>
+        <p data-i18n="ach-how-intro">Cada vez que completas un mapa con el cronómetro, el servidor revisa tus logros. Al desbloquear uno ganas sus puntos, suena un aviso y todo el servidor se entera. Tus logros se guardan para siempre y valen igual en Minigames y en Surf.</p>
+        <ul class="ach-list">
+          <li><strong data-i18n="ach-1-t">🏁 Recorridos</strong> <span data-i18n="ach-1-d">Completa mapas: el primero, 10, 50, 250… y hasta 1000 recorridos.</span></li>
+          <li><strong data-i18n="ach-2-t">🗺️ Exploración</strong> <span data-i18n="ach-2-d">Completa mapas distintos, bonus y mapas de tier alto.</span></li>
+          <li><strong data-i18n="ach-3-t">⚡ Velocidad</strong> <span data-i18n="ach-3-d">Termina en menos de 1 minuto o de 30 segundos y alcanza 1000 o 2500 u/s.</span></li>
+          <li><strong data-i18n="ach-4-t">🥇 Competición</strong> <span data-i18n="ach-4-d">Mejora tus marcas, entra en el top 10 o el podio de un mapa y bate récords del servidor.</span></li>
+          <li><strong data-i18n="ach-5-t">🎯 Técnica</strong> <span data-i18n="ach-5-d">Termina con un 90 % de sync o con un estilo distinto al normal.</span></li>
+          <li><strong data-i18n="ach-6-t">⏳ Constancia</strong> <span data-i18n="ach-6-d">Horas de juego, saltos, conexiones y maratones sin salir del servidor.</span></li>
+          <li><strong data-i18n="ach-7-t">❓ Secretos</strong> <span data-i18n="ach-7-d">Algunos logros están ocultos hasta que los consigues. ¿Los encontrarás?</span></li>
+        </ul>
+        <p data-i18n="ach-how-points">Los logros más difíciles dan más puntos. El ranking ordena por puntos y, si hay empate, por número de logros.</p>
+        <h3 data-i18n="ach-cmd-title">Comandos en el juego</h3>
+        <ul class="ach-cmds">
+          <li><code>!achievements</code> <span data-i18n="ach-cmd-1">Tus logros y tu progreso</span></li>
+          <li><code>!topachievements</code> <span data-i18n="ach-cmd-2">Los mejores jugadores por puntos de logros</span></li>
+          <li><code>!logroshud</code> <span data-i18n="ach-cmd-3">Muestra u oculta el seguimiento de logros en pantalla</span></li>
+        </ul>
+      </section>
+    )}
 
     <p class="rk-footnote">
       <span data-i18n="rk-footnote">Se actualiza cada minuto · Conéctate y entra en el ranking:</span>
@@ -205,7 +250,7 @@ Astro.response.headers.set('Cache-Control', 'public, max-age=60');
     var t = {
       es: {
         'ad-label': 'Publicidad', 'footer-privacy': 'Privacidad',
-        'nav-home': 'Home', 'nav-kofi': '☕ Support us', 'rk-tag': 'RANKING MINIGAMES', 'rk-title': 'Los más rápidos del servidor',
+        'nav-home': 'Inicio', 'nav-kofi': '☕ Apóyanos', 'menu-label': 'Menú', 'rk-tag': 'RANKING MINIGAMES', 'rk-title': 'Los más rápidos del servidor',
         'rk-sub': 'Top 20 global por puntos. Elige un mapa para ver solo sus records.',
         'rk-map-label': 'Mapa', 'rk-search-label': 'Jugador',
         'rk-search-ph': 'Nombre o SteamID64', 'rk-all-maps': '🏆 Ranking global', 'rk-search-btn': 'Buscar', 'rk-clear': 'Limpiar',
@@ -217,10 +262,26 @@ Astro.response.headers.set('Cache-Control', 'public, max-age=60');
         'rk-no-player': 'Ningún jugador coincide con', 'rk-no-data': 'Todavía no hay datos.',
         'rk-foot-map': 'Mejor tiempo de cada jugador en este mapa', 'rk-foot-global': 'Puntos por posición relativa en cada mapa',
         'rk-footnote': 'Se actualiza cada minuto · Conéctate y entra en el ranking:',
+        'rk-tag-ach': 'RANKING DE LOGROS', 'rk-title-ach': 'Cazadores de logros',
+        'rk-unknown': 'Desconocido', 'rk-tab-times': '⏱️ Tiempos', 'rk-tab-ach': '🏅 Logros', 'rk-kind-ach': '🏅 Ranking de logros',
+        'rk-sub-ach': 'Top 20 por puntos de logros. Desbloquéalos jugando en Minigames y Surf.',
+        'rk-no-ach': 'Nadie tiene logros todavía. ¡Sé el primero!', 'rk-foot-ach': 'Puntos de logros · 🏅 logros desbloqueados',
+        'ach-how-title': '¿Cómo funcionan los logros?',
+        'ach-how-intro': 'Cada vez que completas un mapa con el cronómetro, el servidor revisa tus logros. Al desbloquear uno ganas sus puntos, suena un aviso y todo el servidor se entera. Tus logros se guardan para siempre y valen igual en Minigames y en Surf.',
+        'ach-1-t': '🏁 Recorridos', 'ach-1-d': 'Completa mapas: el primero, 10, 50, 250… y hasta 1000 recorridos.',
+        'ach-2-t': '🗺️ Exploración', 'ach-2-d': 'Completa mapas distintos, bonus y mapas de tier alto.',
+        'ach-3-t': '⚡ Velocidad', 'ach-3-d': 'Termina en menos de 1 minuto o de 30 segundos y alcanza 1000 o 2500 u/s.',
+        'ach-4-t': '🥇 Competición', 'ach-4-d': 'Mejora tus marcas, entra en el top 10 o el podio de un mapa y bate récords del servidor.',
+        'ach-5-t': '🎯 Técnica', 'ach-5-d': 'Termina con un 90 % de sync o con un estilo distinto al normal.',
+        'ach-6-t': '⏳ Constancia', 'ach-6-d': 'Horas de juego, saltos, conexiones y maratones sin salir del servidor.',
+        'ach-7-t': '❓ Secretos', 'ach-7-d': 'Algunos logros están ocultos hasta que los consigues. ¿Los encontrarás?',
+        'ach-how-points': 'Los logros más difíciles dan más puntos. El ranking ordena por puntos y, si hay empate, por número de logros.',
+        'ach-cmd-title': 'Comandos en el juego', 'ach-cmd-1': 'Tus logros y tu progreso',
+        'ach-cmd-2': 'Los mejores jugadores por puntos de logros', 'ach-cmd-3': 'Muestra u oculta el seguimiento de logros en pantalla',
       },
       en: {
         'ad-label': 'Advertisement', 'footer-privacy': 'Privacy',
-        'nav-home': 'Home', 'nav-kofi': '☕ Support us', 'rk-tag': 'MINIGAMES RANKING', 'rk-title': 'The fastest players on the server',
+        'nav-home': 'Home', 'nav-kofi': '☕ Support us', 'menu-label': 'Menu', 'rk-tag': 'MINIGAMES RANKING', 'rk-title': 'The fastest players on the server',
         'rk-sub': 'Global top 20 by points. Pick a map to see only its records.',
         'rk-map-label': 'Map', 'rk-search-label': 'Player',
         'rk-search-ph': 'Name or SteamID64', 'rk-all-maps': '🏆 Global ranking', 'rk-search-btn': 'Search', 'rk-clear': 'Clear',
@@ -232,6 +293,22 @@ Astro.response.headers.set('Cache-Control', 'public, max-age=60');
         'rk-no-player': 'No player matches', 'rk-no-data': 'No data yet.',
         'rk-foot-map': "Each player's best time on this map", 'rk-foot-global': 'Points based on relative position on each map',
         'rk-footnote': 'Updated every minute · Connect and join the ranking:',
+        'rk-tag-ach': 'ACHIEVEMENTS RANKING', 'rk-title-ach': 'Achievement hunters',
+        'rk-unknown': 'Unknown', 'rk-tab-times': '⏱️ Times', 'rk-tab-ach': '🏅 Achievements', 'rk-kind-ach': '🏅 Achievements ranking',
+        'rk-sub-ach': 'Top 20 by achievement points. Unlock them playing on Minigames and Surf.',
+        'rk-no-ach': 'Nobody has achievements yet. Be the first!', 'rk-foot-ach': 'Achievement points · 🏅 achievements unlocked',
+        'ach-how-title': 'How do achievements work?',
+        'ach-how-intro': 'Every time you finish a map with the timer running, the server checks your achievements. Unlock one and you earn its points, a sound plays and the whole server finds out. Your achievements are saved forever and count the same on Minigames and Surf.',
+        'ach-1-t': '🏁 Runs', 'ach-1-d': 'Finish maps: your first one, 10, 50, 250… all the way to 1000 runs.',
+        'ach-2-t': '🗺️ Exploration', 'ach-2-d': 'Finish different maps, bonuses and high-tier maps.',
+        'ach-3-t': '⚡ Speed', 'ach-3-d': 'Finish in under 1 minute or 30 seconds, and reach 1000 or 2500 u/s.',
+        'ach-4-t': '🥇 Competition', 'ach-4-d': 'Beat your personal bests, make a map\'s top 10 or podium and set server records.',
+        'ach-5-t': '🎯 Technique', 'ach-5-d': 'Finish with 90% sync or with a style other than normal.',
+        'ach-6-t': '⏳ Dedication', 'ach-6-d': 'Hours played, jumps, connections and marathons without leaving the server.',
+        'ach-7-t': '❓ Secrets', 'ach-7-d': 'Some achievements stay hidden until you get them. Can you find them?',
+        'ach-how-points': 'Harder achievements give more points. The ranking sorts by points and, on a tie, by number of achievements.',
+        'ach-cmd-title': 'In-game commands', 'ach-cmd-1': 'Your achievements and progress',
+        'ach-cmd-2': 'Top players by achievement points', 'ach-cmd-3': 'Show or hide the on-screen achievement tracker',
       },
     };
 
@@ -240,6 +317,10 @@ Astro.response.headers.set('Cache-Control', 'public, max-age=60');
       document.querySelectorAll('[data-i18n]').forEach(function(el) {
         var key = el.getAttribute('data-i18n');
         if (dict[key] !== undefined) el.textContent = dict[key];
+      });
+      document.querySelectorAll('[data-i18n-aria-label]').forEach(function(el) {
+        var key = el.getAttribute('data-i18n-aria-label');
+        if (dict[key] !== undefined) el.setAttribute('aria-label', dict[key]);
       });
       document.querySelectorAll('[data-i18n-placeholder]').forEach(function(el) {
         var key = el.getAttribute('data-i18n-placeholder');
@@ -357,6 +438,33 @@ Astro.response.headers.set('Cache-Control', 'public, max-age=60');
     -webkit-background-clip: text; background-clip: text; color: transparent;
   }
   .rk-sub { color: var(--muted); max-width: 520px; margin: 0 auto; }
+
+  /* ── Pestañas Tiempos / Logros ── */
+  .rk-tabs {
+    display: flex; gap: 6px; width: fit-content; margin: 0 auto 16px; padding: 5px;
+    background: rgba(26,26,46,0.6); border: 1px solid var(--border); border-radius: 12px;
+  }
+  .rk-tabs a {
+    padding: 8px 18px; border-radius: 8px; color: var(--muted); text-decoration: none;
+    font-size: 0.9rem; font-weight: 600; transition: color 0.2s, background 0.2s;
+  }
+  .rk-tabs a:hover { color: var(--text); }
+  .rk-tabs a.active { color: #fff; background: linear-gradient(135deg, var(--orange), #ff8a50); }
+  .rk-filters.is-ach { grid-template-columns: 1fr auto; }
+
+  /* ── Cómo funcionan los logros ── */
+  .ach-how {
+    margin-top: 28px; padding: 24px; color: var(--muted); line-height: 1.6;
+    background: rgba(26,26,46,0.6); border: 1px solid var(--border); border-radius: 20px;
+  }
+  .ach-how h2 { color: var(--text); font-size: 1.4rem; margin-bottom: 10px; }
+  .ach-how h3 { color: var(--text); font-size: 1.05rem; margin: 20px 0 8px; }
+  .ach-list, .ach-cmds { list-style: none; display: grid; gap: 8px; margin: 14px 0; }
+  .ach-list strong { color: var(--text); margin-right: 4px; }
+  .ach-cmds code {
+    font-family: ui-monospace, 'Cascadia Code', Consolas, monospace; font-size: 0.85em; color: var(--orange);
+    background: var(--bg2); border: 1px solid var(--border); border-radius: 6px; padding: 2px 6px; margin-right: 6px;
+  }
 
   /* ── Filtros ── */
   .rk-filters {
@@ -486,8 +594,8 @@ Astro.response.headers.set('Cache-Control', 'public, max-age=60');
   }
 
   @media (max-width: 720px) {
-    .rk-filters { grid-template-columns: 1fr 1fr; }
-    .rk-actions { grid-column: 1 / -1; }
+    .rk-filters, .rk-filters.is-ach { grid-template-columns: 1fr 1fr; }
+    .rk-filters.is-ach .rk-field-search, .rk-actions { grid-column: 1 / -1; }
     .rk-btn { flex: 1; }
   }
   @media (max-width: 600px) {

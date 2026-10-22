@@ -44,3 +44,14 @@ export function fetchPlayerPbOnMap(map: string, search: string): Promise<PbRow[]
 export function fetchMaps(): Promise<MapRow[]> {
   return get<MapRow[]>('/maps');
 }
+
+// Logros (plugin CourseAchievements): puntos de logros y cuántos tiene cada jugador.
+export interface AchievementRow extends TopRow { unlocked: number; position?: number; }
+
+export function fetchAchievementsTop(limit: number): Promise<AchievementRow[]> {
+  return get<AchievementRow[]>('/achievements/top', { limit });
+}
+
+export function fetchAchievementsRank(search: string): Promise<AchievementRow[]> {
+  return get<AchievementRow[]>('/achievements/rank', { q: search });
+}
