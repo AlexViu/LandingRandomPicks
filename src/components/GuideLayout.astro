@@ -1,6 +1,8 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import Analytics from './Analytics.astro';
+import AdBanner from './AdBanner.astro';
+import { AD_SLOTS } from '../lib/ads';
 import { GUIDES } from '../lib/guides';
 
 interface Props {
@@ -37,6 +39,8 @@ const others = GUIDES.filter((g) => g.slug !== slug);
     <p class="guide-intro">{intro}</p>
 
     <slot />
+
+    {slug && <AdBanner unit={AD_SLOTS.guias} />}
 
     {others.length > 0 && (
       <aside class="more">

@@ -8,10 +8,12 @@
 // Solo se usan estos bloques manuales: en el panel de AdSense hay que dejar
 // desactivados los anuncios automáticos (anclados, intersticiales, vignettes).
 //
-// Solo la portada lleva bloque: AdSense no permite anuncios en pantallas con poco
-// contenido propio (ranking, servidores), así que no les pongas banner.
+// Solo llevan bloque la portada y cada guía (al final del artículo; el índice /guias
+// no, que es solo una lista). AdSense no permite anuncios en pantallas con poco
+// contenido propio (ranking, servidores, privacidad), así que no les pongas banner.
 export const ADSENSE_CLIENT = 'ca-pub-2583156431916553';
 
 export const AD_SLOTS = {
   landing: '3962141679',
+  guias: '3962141679',
 };
