@@ -51,7 +51,7 @@ try {
 
 const isMap = Boolean(mapParam) && maps.some((m) => m.map === mapParam);
 const unknownMap = Boolean(mapParam) && !isMap;
-const mapHref = (m: string) => `/ranking?map=${encodeURIComponent(m)}`;
+const mapHref = (m: string) => `/ranking/?map=${encodeURIComponent(m)}`;
 const podium = (pos: number) => (pos === 1 ? 'gold' : pos === 2 ? 'silver' : pos === 3 ? 'bronze' : '');
 
 Astro.response.headers.set('Cache-Control', 'public, max-age=60');
@@ -111,11 +111,11 @@ Astro.response.headers.set('Cache-Control', 'public, max-age=60');
     </header>
 
     <div class="rk-tabs" role="tablist">
-      <a href="/ranking" role="tab" aria-selected={!achievements} class={!achievements ? 'active' : ''} data-i18n="rk-tab-times">⏱️ Tiempos</a>
-      <a href="/ranking?view=logros" role="tab" aria-selected={achievements} class={achievements ? 'active' : ''} data-i18n="rk-tab-ach">🏅 Logros</a>
+      <a href="/ranking/" role="tab" aria-selected={!achievements} class={!achievements ? 'active' : ''} data-i18n="rk-tab-times">⏱️ Tiempos</a>
+      <a href="/ranking/?view=logros" role="tab" aria-selected={achievements} class={achievements ? 'active' : ''} data-i18n="rk-tab-ach">🏅 Logros</a>
     </div>
 
-    <form class={`rk-filters ${achievements ? 'is-ach' : ''}`} method="get" action="/ranking">
+    <form class={`rk-filters ${achievements ? 'is-ach' : ''}`} method="get" action="/ranking/">
       {achievements && <input type="hidden" name="view" value="logros" />}
       {!achievements && <label class="rk-field rk-field-map">
         <span class="rk-label" data-i18n="rk-map-label">Mapa</span>
@@ -130,7 +130,7 @@ Astro.response.headers.set('Cache-Control', 'public, max-age=60');
       </label>
       <div class="rk-actions">
         <button type="submit" class="rk-btn" data-i18n="rk-search-btn">Buscar</button>
-        {(search || mapParam) && <a class="rk-clear" href={achievements ? '/ranking?view=logros' : '/ranking'} data-i18n="rk-clear">Limpiar</a>}
+        {(search || mapParam) && <a class="rk-clear" href={achievements ? '/ranking/?view=logros' : '/ranking/'} data-i18n="rk-clear">Limpiar</a>}
       </div>
     </form>
 
@@ -241,7 +241,7 @@ Astro.response.headers.set('Cache-Control', 'public, max-age=60');
       <span data-i18n="rk-footnote">Se actualiza cada minuto · Conéctate y entra en el ranking:</span>
       <code>connect cs2.randompicks.es:27015</code>
     </p>
-    <p class="rk-footnote rk-legal"><a href="/privacidad" data-i18n="footer-privacy">Privacidad</a></p>
+    <p class="rk-footnote rk-legal"><a href="/privacidad/" data-i18n="footer-privacy">Privacidad</a></p>
   </main>
 
   <Analytics />
