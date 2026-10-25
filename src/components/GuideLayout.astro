@@ -25,15 +25,15 @@ const others = GUIDES.filter((g) => g.slug !== slug);
       </a>
       <div class="nav-links">
         <a href="/">Inicio</a>
-        <a href="/guias">Guías</a>
-        <a href="/servidores">Servidores</a>
-        <a href="/ranking">Ranking</a>
+        <a href="/guias/">Guías</a>
+        <a href="/servidores/">Servidores</a>
+        <a href="/ranking/">Ranking</a>
       </div>
     </div>
   </nav>
 
   <main class="guide">
-    {slug && <p class="crumbs"><a href="/guias">Guías</a> / {heading}</p>}
+    {slug && <p class="crumbs"><a href="/guias/">Guías</a> / {heading}</p>}
     <h1>{heading}</h1>
     <p class="guide-updated">Actualizado: {updated}</p>
     <p class="guide-intro">{intro}</p>
@@ -56,7 +56,7 @@ const others = GUIDES.filter((g) => g.slug !== slug);
     <p class="guide-foot">
       ¿Algo no está claro o ha cambiado en el servidor? Avísanos en
       <a href="https://discord.gg/HSMZT6njnk" target="_blank" rel="noopener">Discord</a> ·
-      <a href="/privacidad">Privacidad</a>
+      <a href="/privacidad/">Privacidad</a>
     </p>
   </main>
 
