@@ -26,6 +26,8 @@ const others = GUIDES.filter((g) => g.slug !== slug);
       <div class="nav-links">
         <a href="/">Inicio</a>
         <a href="/guias/">Guías</a>
+        <a href="/mapas/">Mapas</a>
+        <a href="/novedades/">Novedades</a>
         <a href="/servidores/">Servidores</a>
         <a href="/ranking/">Ranking</a>
       </div>
@@ -114,7 +116,8 @@ const others = GUIDES.filter((g) => g.slug !== slug);
 
   @media (max-width: 600px) {
     .nav-inner { padding: 0 16px; }
-    .nav-links { gap: 14px; }
+    .nav-inner { gap: 12px; }
+    .nav-links { gap: 14px; overflow-x: auto; scrollbar-width: none; white-space: nowrap; min-width: 0; }
     .guide { padding: 92px 16px 56px; }
   }
 </style>

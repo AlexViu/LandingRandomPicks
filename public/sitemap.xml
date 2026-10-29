@@ -15,6 +15,16 @@
     <changefreq>monthly</changefreq>
   </url>
   <url>
+    <loc>https://randompicks.es/mapas/</loc>
+    <lastmod>2026-10-29</lastmod>
+    <changefreq>weekly</changefreq>
+  </url>
+  <url>
+    <loc>https://randompicks.es/novedades/</loc>
+    <lastmod>2026-10-29</lastmod>
+    <changefreq>weekly</changefreq>
+  </url>
+  <url>
     <loc>https://randompicks.es/guias/</loc>
     <changefreq>monthly</changefreq>
   </url>

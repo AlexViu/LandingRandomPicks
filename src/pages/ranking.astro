@@ -68,6 +68,9 @@ Astro.response.headers.set('Cache-Control', 'public, max-age=60');
       </a>
       <ul class="nav-links">
         <li><a href="/" data-i18n="nav-home">Inicio</a></li>
+        <li><a href="/guias/" data-i18n="nav-guides">Guías</a></li>
+        <li><a href="/mapas/" data-i18n="nav-maps">Mapas</a></li>
+        <li><a href="/novedades/" data-i18n="nav-news">Novedades</a></li>
         <li><a href="https://discord.gg/HSMZT6njnk" target="_blank" rel="noopener" class="nav-discord">Discord</a></li>
         <li><a href="https://ko-fi.com/randompicks" target="_blank" rel="noopener" class="nav-kofi" data-i18n="nav-kofi">☕ Apóyanos</a></li>
       </ul>
@@ -85,6 +88,9 @@ Astro.response.headers.set('Cache-Control', 'public, max-age=60');
     </div>
     <div class="mobile-menu" id="mobile-menu">
       <a href="/" data-i18n="nav-home">Inicio</a>
+      <a href="/guias/" data-i18n="nav-guides">Guías</a>
+      <a href="/mapas/" data-i18n="nav-maps">Mapas</a>
+      <a href="/novedades/" data-i18n="nav-news">Novedades</a>
       <a href="https://discord.gg/HSMZT6njnk" target="_blank" rel="noopener">Discord</a>
       <a href="https://ko-fi.com/randompicks" target="_blank" rel="noopener" data-i18n="nav-kofi">☕ Apóyanos</a>
     </div>
@@ -250,7 +256,7 @@ Astro.response.headers.set('Cache-Control', 'public, max-age=60');
     var t = {
       es: {
         'ad-label': 'Publicidad', 'footer-privacy': 'Privacidad',
-        'nav-home': 'Inicio', 'nav-kofi': '☕ Apóyanos', 'menu-label': 'Menú', 'rk-tag': 'RANKING MINIGAMES', 'rk-title': 'Los más rápidos del servidor',
+        'nav-home': 'Inicio', 'nav-guides': 'Guías', 'nav-maps': 'Mapas', 'nav-news': 'Novedades', 'nav-kofi': '☕ Apóyanos', 'menu-label': 'Menú', 'rk-tag': 'RANKING MINIGAMES', 'rk-title': 'Los más rápidos del servidor',
         'rk-sub': 'Top 20 global por puntos. Elige un mapa para ver solo sus records.',
         'rk-map-label': 'Mapa', 'rk-search-label': 'Jugador',
         'rk-search-ph': 'Nombre o SteamID64', 'rk-all-maps': '🏆 Ranking global', 'rk-search-btn': 'Buscar', 'rk-clear': 'Limpiar',
@@ -281,7 +287,7 @@ Astro.response.headers.set('Cache-Control', 'public, max-age=60');
       },
       en: {
         'ad-label': 'Advertisement', 'footer-privacy': 'Privacy',
-        'nav-home': 'Home', 'nav-kofi': '☕ Support us', 'menu-label': 'Menu', 'rk-tag': 'MINIGAMES RANKING', 'rk-title': 'The fastest players on the server',
+        'nav-home': 'Home', 'nav-guides': 'Guides', 'nav-maps': 'Maps', 'nav-news': 'News', 'nav-kofi': '☕ Support us', 'menu-label': 'Menu', 'rk-tag': 'MINIGAMES RANKING', 'rk-title': 'The fastest players on the server',
         'rk-sub': 'Global top 20 by points. Pick a map to see only its records.',
         'rk-map-label': 'Map', 'rk-search-label': 'Player',
         'rk-search-ph': 'Name or SteamID64', 'rk-all-maps': '🏆 Global ranking', 'rk-search-btn': 'Search', 'rk-clear': 'Clear',

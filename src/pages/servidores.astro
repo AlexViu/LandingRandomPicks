@@ -15,6 +15,9 @@ import { SERVERS } from '../lib/servers';
       </a>
       <ul class="nav-links">
         <li><a href="/" data-i18n="nav-home">Inicio</a></li>
+        <li><a href="/guias/" data-i18n="nav-guides">Guías</a></li>
+        <li><a href="/mapas/" data-i18n="nav-maps">Mapas</a></li>
+        <li><a href="/novedades/" data-i18n="nav-news">Novedades</a></li>
         <li><a href="/ranking/" data-i18n="nav-ranking">Ranking</a></li>
         <li><a href="https://discord.gg/HSMZT6njnk" target="_blank" rel="noopener" class="nav-discord">Discord</a></li>
         <li><a href="https://ko-fi.com/randompicks" target="_blank" rel="noopener" class="nav-kofi" data-i18n="nav-kofi">☕ Apóyanos</a></li>
@@ -33,6 +36,9 @@ import { SERVERS } from '../lib/servers';
     </div>
     <div class="mobile-menu" id="mobile-menu">
       <a href="/" data-i18n="nav-home">Inicio</a>
+      <a href="/guias/" data-i18n="nav-guides">Guías</a>
+      <a href="/mapas/" data-i18n="nav-maps">Mapas</a>
+      <a href="/novedades/" data-i18n="nav-news">Novedades</a>
       <a href="/ranking/" data-i18n="nav-ranking">Ranking</a>
       <a href="https://discord.gg/HSMZT6njnk" target="_blank" rel="noopener">Discord</a>
       <a href="https://ko-fi.com/randompicks" target="_blank" rel="noopener" data-i18n="nav-kofi">☕ Apóyanos</a>
@@ -83,11 +89,11 @@ import { SERVERS } from '../lib/servers';
   <script is:inline>
     var t = {
       es: {
-        'footer-privacy': 'Privacidad', 'nav-home': 'Inicio', 'nav-ranking': 'Ranking', 'nav-kofi': '☕ Apóyanos',
+        'footer-privacy': 'Privacidad', 'nav-home': 'Inicio', 'nav-guides': 'Guías', 'nav-maps': 'Mapas', 'nav-news': 'Novedades', 'nav-ranking': 'Ranking', 'nav-kofi': '☕ Apóyanos',
         'menu-label': 'Menú', 'srv-tag': 'SERVIDORES', 'srv-title': 'Nuestros servidores', 'srv-sub': 'Estado en directo. Pulsa conectar y CS2 se abrirá directamente en el servidor.', 'srv-loading': 'Comprobando…', 'srv-online': 'Online', 'srv-offline': 'Offline', 'srv-unknown': 'Estado no disponible', 'srv-connect': 'Conectar', 'srv-map': 'Mapa', 'srv-hint': 'Necesitas tener Steam y CS2 instalados. Si no se abre, copia la IP y escribe connect en la consola.',
       },
       en: {
-        'footer-privacy': 'Privacy', 'nav-home': 'Home', 'nav-ranking': 'Ranking', 'nav-kofi': '☕ Support us',
+        'footer-privacy': 'Privacy', 'nav-home': 'Home', 'nav-guides': 'Guides', 'nav-maps': 'Maps', 'nav-news': 'News', 'nav-ranking': 'Ranking', 'nav-kofi': '☕ Support us',
         'menu-label': 'Menu', 'srv-tag': 'SERVERS', 'srv-title': 'Our servers', 'srv-sub': 'Live status. Hit connect and CS2 will open straight into the server.', 'srv-loading': 'Checking…', 'srv-online': 'Online', 'srv-offline': 'Offline', 'srv-unknown': 'Status unavailable', 'srv-connect': 'Connect', 'srv-map': 'Map', 'srv-hint': 'You need Steam and CS2 installed. If it doesn\'t open, copy the IP and type connect in the console.',
       },
     };
@@ -298,7 +304,7 @@ import { SERVERS } from '../lib/servers';
   .server-connect:hover { background: var(--orange-dim); }
   .server-connect:focus-visible { outline: 2px solid var(--text); outline-offset: 2px; }
   .server-card[data-state="offline"] .server-connect { background: var(--surface2); color: var(--muted); }
-  .servers-hint {  .servers-hint { text-align: center; color: var(--muted); font-size: 0.85rem; margin-top: 28px; }
+  .servers-hint { text-align: center; color: var(--muted); font-size: 0.85rem; margin-top: 28px; }
 
   @media (max-width: 600px) {
     .nav-inner { padding: 0 16px; }

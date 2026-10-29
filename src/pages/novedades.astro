@@ -1,0 +1,139 @@
+---
+import GuideLayout from '../components/GuideLayout.astro';
+import MapGrid from '../components/MapGrid.astro';
+import { MINIGAMES_MAPS } from '../lib/maps';
+import { NEWS } from '../lib/news';
+
+const news = Object.fromEntries(NEWS.map((n) => [n.slug, n]));
+const halloweenMaps = MINIGAMES_MAPS.filter((m) => /halloween/i.test(m.name));
+---
+
+<GuideLayout
+  title="Novedades de los servidores de CS2 — RandomPicks"
+  description="Qué ha cambiado en los servidores de CS2 de RandomPicks: mapas nuevos, logros, la tienda dentro del HUD, el menú de ayuda y el evento de Halloween."
+  heading="Novedades"
+  intro="Lo último que hemos añadido a los servidores, de lo más reciente a lo más antiguo. Si algo no funciona como se cuenta aquí, avísanos en Discord."
+  updated="29 de octubre de 2026"
+>
+  <ul class="news-toc">
+    {NEWS.map((n) => (
+      <li><a href={`#${n.slug}`}>{n.title}</a> <span class="news-date">· {n.dateLabel}</span></li>
+    ))}
+  </ul>
+
+  <section id="mapas-octubre">
+    <h2>{news['mapas-octubre'].title}</h2>
+    <p class="news-date"><time datetime={news['mapas-octubre'].date}>{news['mapas-octubre'].dateLabel}</time> · Minigames</p>
+    <p>
+      La rotación de Minigames ha crecido hasta los {MINIGAMES_MAPS.length} mapas. De los nuevos, los que más se
+      notan son:
+    </p>
+    <ul>
+      <li><strong>Tres deathrun</strong>: <code>Deathrun Playground</code>, su versión de Halloween y <code>Deathrun Jigsaw</code>. Un jugador maneja las trampas y el resto intenta llegar al final.</li>
+      <li><strong>Minigolf KraKer</strong>, un minigolf con hoyos de verdad. Se carga el golpe con <kbd>E</kbd> o el clic izquierdo.</li>
+      <li><strong>Smash Minecraft Cannons</strong> y <strong>MG Skeet Multigames</strong> para cuando hay mucha gente.</li>
+      <li><strong>mg_backrooms_lost</strong>, de exploración en grupo: hay que encontrar cinco documentos para pasar de nivel.</li>
+      <li><strong>Courses portados de CS:GO</strong>, entre ellos <code>mg_mario_journey</code>, <code>mg_bobiii_reborn</code> (14 niveles con partes de KZ, bhop y surf), <code>mg_castle_course</code> y una versión nueva de <code>mg_adev</code> que sustituye a la anterior.</li>
+    </ul>
+    <p>
+      La lista completa, con imagen y enlace a Workshop de cada mapa, está en la <a href="/mapas/#nuevos">página de mapas</a>.
+      Para jugar uno concreto, nomínalo con <code>!nominate</code> y parte de su nombre.
+    </p>
+  </section>
+
+  <section id="logros">
+    <h2>{news.logros.title}</h2>
+    <p class="news-date"><time datetime={news.logros.date}>{news.logros.dateLabel}</time> · Minigames y Surf</p>
+    <p>
+      Ahora hay <strong>38 logros</strong> que se consiguen jugando los mapas con cronómetro (courses, bhop y surf).
+      Cuando desbloqueas uno aparece un aviso en el centro de la pantalla y se anuncia en el chat. Dos de ellos son
+      secretos y salen como <code>???</code> hasta que los consigues.
+    </p>
+    <p>
+      Cuentan también tus tiempos de antes: el servidor revisa los récords que ya tenías guardados, así que si
+      llevabas tiempo jugando, la primera vez que entres recibirás de golpe los logros que ya te habías ganado. Ya hay
+      más de cien jugadores con algún logro desbloqueado.
+    </p>
+    <table>
+      <thead><tr><th>Tipo</th><th>Ejemplos</th></tr></thead>
+      <tbody>
+        <tr><td>Recorridos</td><td><em>Primer recorrido</em> (terminar un mapa) hasta <em>Leyenda del course</em> (1.000 recorridos).</td></tr>
+        <tr><td>Exploración</td><td>Terminar 3, 10 y 25 mapas distintos; completar bonus.</td></tr>
+        <tr><td>Velocidad</td><td>Acabar un recorrido en menos de 1 minuto o de 30 segundos; llegar a 1.000 y 2.500 u/s.</td></tr>
+        <tr><td>Récords</td><td>Entrar en el top 10 o en el podio de un mapa; conseguir 1 y 10 récords del servidor.</td></tr>
+        <tr><td>Dificultad y técnica</td><td>Terminar mapas de tier 3 y 5; acabar con un sync del 90 %; usar un estilo distinto al normal.</td></tr>
+        <tr><td>Constancia</td><td>Horas jugadas (1, 10 y 50), entradas al servidor, saltos y veces que inicias el cronómetro.</td></tr>
+      </tbody>
+    </table>
+    <p>
+      Cada logro da puntos de logro (de 5 a 200). Con <code>!logros</code> ves la lista con tu progreso y con
+      <code>!toplogros</code> el top de jugadores por puntos, que también puedes consultar en la
+      <a href="/ranking/?view=logros">pestaña de logros del ranking</a>.
+    </p>
+  </section>
+
+  <section id="tienda">
+    <h2>{news.tienda.title}</h2>
+    <p class="news-date"><time datetime={news.tienda.date}>{news.tienda.dateLabel}</time> · Minigames y Surf</p>
+    <p>
+      La tienda se abre ahora dentro del HUD: <code>!store</code> (o <code>!shop</code>, <code>!tienda</code>)
+      la muestra en pantalla, con una pestaña de tienda y otra de inventario (<code>!inv</code>), las categorías a la izquierda
+      y nueve objetos por página.
+    </p>
+    <table>
+      <thead><tr><th>Tecla</th><th>Qué hace</th></tr></thead>
+      <tbody>
+        <tr><td><kbd>W</kbd> <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd></td><td>Moverse por la tienda (mantener para ir más rápido).</td></tr>
+        <tr><td><kbd>E</kbd></td><td>Comprar, equipar o quitar. Para comprar hay que pulsarla dos veces, así no gastas créditos sin querer.</td></tr>
+        <tr><td><kbd>F</kbd></td><td>Inspeccionar una skin: el modelo aparece delante de ti y da una vuelta. Solo lo ves tú.</td></tr>
+        <tr><td><kbd>R</kbd></td><td>Cerrar.</td></tr>
+      </tbody>
+    </table>
+    <p>
+      Mientras la tienda está abierta tu personaje no se mueve. Hay cuatro categorías: <strong>skins</strong> de personaje
+      (de Goku y Naruto a Homer Simpson o Ghost Face), <strong>estelas</strong>, <strong>alas</strong> y <strong>tags</strong>
+      (color del nombre y del chat, y etiquetas). Si los cosméticos de los demás te molestan, en el menú de
+      <code>!help</code> puedes ocultar sus estelas (<code>hidetrails</code>) y sus modelos (<code>modeloff</code>). Cómo se ganan los créditos está en la
+      <a href="/guias/minigames/">guía de minigames</a>.
+    </p>
+  </section>
+
+  <section id="hud-y-votaciones">
+    <h2>{news['hud-y-votaciones'].title}</h2>
+    <p class="news-date"><time datetime={news['hud-y-votaciones'].date}>{news['hud-y-votaciones'].dateLabel}</time> · Minigames y Surf</p>
+    <p>
+      Los servidores tienen un <strong>HUD propio</strong> dibujado por la interfaz del juego: no parpadea como los
+      textos del centro de la pantalla y no tapa el chat. Con <code>!rphud</code> cambias entre sus estilos.
+    </p>
+    <p>
+      Con <code>!help</code> (o <code>!commands</code>) se abre un <strong>menú con los comandos útiles</strong>: eliges
+      uno y se ejecuta, sin tener que recordarlo. Ahí están <code>!kill</code> si te quedas atascado, <code>!r</code> para
+      volver al inicio del recorrido, la tienda, los logros o el volumen de la música (<code>!music</code>).
+    </p>
+    <p>
+      En Minigames cambió también el <strong>sistema de votación de mapas</strong>: cada votación ofrece 5 mapas al azar
+      más la opción de quedarse, los 3 últimos mapas jugados no se repiten y, al final del mapa, se puede alargar
+      10 minutos hasta dos veces. Los detalles están en la <a href="/guias/minigames/">guía de minigames</a>.
+    </p>
+  </section>
+
+  <section id="halloween">
+    <h2>{news.halloween.title}</h2>
+    <p class="news-date"><time datetime={news.halloween.date}>{news.halloween.dateLabel}</time> · Minigames</p>
+    <p>
+      Desde principios de octubre, los administradores pueden lanzar <strong>sonidos de Halloween</strong> en mitad de la partida.
+      La primera vez que entres, el juego descargará un pequeño addon con los sonidos; es automático y solo se usa en
+      nuestro servidor.
+    </p>
+    <p>A la rotación se han sumado además estos mapas temáticos:</p>
+    <MapGrid maps={halloweenMaps} />
+  </section>
+</GuideLayout>
+
+<style>
+  .news-toc { list-style: none; padding: 0 !important; margin-bottom: 8px !important; }
+  .news-toc li { margin-bottom: 6px !important; }
+  .news-date { color: var(--muted) !important; font-size: 0.85rem; }
+  section { scroll-margin-top: 80px; }
+  section h2 { margin-bottom: 4px !important; }
+</style>

@@ -1,0 +1,46 @@
+---
+// Cuadrícula de mapas con la portada de Steam Workshop. Las imágenes van redimensionadas por el CDN de Steam
+// (480x270, ~20 KB) y con carga diferida, porque /mapas/ pinta un centenar.
+import { type ServerMap, thumbUrl, workshopUrl } from '../lib/maps';
+
+interface Props {
+  maps: ServerMap[];
+}
+const { maps } = Astro.props;
+---
+
+<ul class="map-grid">
+  {maps.map((m) => (
+    <li class="map-card">
+      <a href={workshopUrl(m.id)} target="_blank" rel="noopener" title={`Ver ${m.name} en Steam Workshop`}>
+        <img src={thumbUrl(m.img)} alt={`Portada del mapa ${m.name}`} width="480" height="270" loading="lazy" decoding="async" />
+        <span class="map-name">{m.name}</span>
+        {m.isNew && <span class="map-new">Nuevo</span>}
+      </a>
+    </li>
+  ))}
+</ul>
+
+<style>
+  .map-grid {
+    list-style: none; padding: 0 !important; margin: 12px 0 28px !important;
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px;
+  }
+  .map-card { margin: 0 !important; position: relative; }
+  .map-card a {
+    display: flex; flex-direction: column; height: 100%;
+    background: var(--surface); border: 1px solid var(--border); border-radius: 10px; overflow: hidden;
+    text-decoration: none !important; transition: border-color 0.2s, transform 0.2s;
+  }
+  .map-card a:hover { border-color: var(--orange-dim); transform: translateY(-2px); }
+  .map-card a:focus-visible { outline: 2px solid var(--orange); outline-offset: 2px; }
+  .map-card img { width: 100%; height: auto; aspect-ratio: 16 / 9; object-fit: cover; display: block; background: var(--bg2); }
+  .map-name {
+    padding: 8px 10px; font-size: 0.8rem; line-height: 1.3; color: var(--text);
+    font-family: ui-monospace, 'Cascadia Code', Consolas, monospace; overflow-wrap: anywhere;
+  }
+  .map-new {
+    position: absolute; top: 8px; left: 8px; padding: 2px 8px; border-radius: 999px;
+    background: var(--orange); color: #fff; font-size: 0.68rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
+  }
+</style>
