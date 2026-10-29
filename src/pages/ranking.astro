@@ -409,9 +409,11 @@ Astro.response.headers.set('Cache-Control', 'public, max-age=60');
   .mobile-menu { display: none; flex-direction: column; padding: 16px 24px 20px; gap: 12px; border-top: 1px solid var(--border); }
   .mobile-menu a { color: var(--muted); text-decoration: none; font-weight: 500; padding: 8px 0; border-bottom: 1px solid var(--border); }
   .mobile-menu.open { display: flex; }
-  @media (max-width: 768px) {
+  @media (max-width: 1023px) {
     .nav-links { display: none; }
     .hamburger { display: flex; }
+  }
+  @media (max-width: 768px) {
     .lang-sep, .lang-inactive { display: none; }
     .lang-toggle { padding: 5px 9px; }
   }
