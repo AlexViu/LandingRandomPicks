@@ -6,7 +6,7 @@ import { SERVERS } from '../lib/servers';
 
 <Layout
   title="Servidores CS2 — RandomPicks"
-  description="Estado en directo de los servidores de CS2 de RandomPicks (Minigames y Surf) y conexión directa con un clic."
+  description="Estado en directo de los servidores de CS2 de RandomPicks (Minigames y Surf), qué se juega en cada uno, cómo entrar, primeros comandos y a qué hora hay más gente."
 >
   <nav>
     <div class="nav-inner">
@@ -81,6 +81,145 @@ import { SERVERS } from '../lib/servers';
     </div>
     <p class="servers-hint" data-i18n="srv-hint">Necesitas tener Steam y CS2 instalados. Si no se abre, copia la IP y escribe connect en la consola.</p>
 
+    <!-- Texto largo en los dos idiomas: applyLang muestra el bloque del idioma activo -->
+    <article class="srv-info" lang="es" data-lang-block="es">
+      <h2>Qué hay en cada servidor</h2>
+      <h3>Minigames · <code>cs2.randompicks.es:27015</code></h3>
+      <p>
+        El servidor principal, para hasta 20 jugadores. Cada mapa dura 16 minutos y al final se vota el siguiente
+        entre los <a href="/mapas/">más de 80 mapas de la rotación</a>: courses (carreras de obstáculos por niveles),
+        mapas de multijuegos y arenas, deathrun, Smash, minigolf y algunos de bhop y surf. Si el mapa no gusta, con
+        <code>!rtv</code> se puede votar el cambio antes de tiempo.
+      </p>
+      <p>
+        Los recorridos van cronometrados: tu mejor tiempo queda guardado en el <a href="/ranking/">ranking</a> y
+        cuenta para los <a href="/novedades/#logros">logros</a>. Mientras juegas ganas créditos para la tienda de
+        skins, estelas y alas; no se venden con dinero real.
+      </p>
+      <h3>Surf · <code>cs2.randompicks.es:27016</code></h3>
+      <p>
+        Solo surf, también para 20 jugadores, con mapas de <strong>tier 1 a 3</strong>: de los que sirven para
+        aprender a los de dificultad media, sin los mapas técnicos que solo terminan los expertos. Cada mapa dura
+        20 minutos. Tiene cronómetro, rangos, logros y la misma tienda que Minigames. Cuando se queda vacío un rato,
+        vuelve solo a <code>surf_utopia_njv</code>, el mapa de surf más jugado de Workshop. La lista completa está
+        en la <a href="/mapas/#surf">página de mapas</a>.
+      </p>
+
+      <h2>Cómo entrar</h2>
+      <ol>
+        <li>Pulsa <strong>Conectar</strong> en la tarjeta del servidor. Steam abrirá CS2 y entrará directamente.</li>
+        <li>
+          Si no funciona, abre CS2, pon <em>Ajustes → Juego → Activar consola para desarrolladores (~)</em> en
+          <em>Sí</em>, ábrela con la tecla que está a la izquierda del <kbd>1</kbd> (<kbd>º</kbd> en teclados
+          españoles) y escribe <code>connect cs2.randompicks.es:27015</code>
+          (o <code>:27016</code> para Surf).
+        </li>
+        <li>
+          La primera vez que juegues un mapa, CS2 lo descarga de Workshop y la pantalla de carga puede tardar un poco
+          más. Es normal; las siguientes veces ya lo tendrás.
+        </li>
+      </ol>
+      <p>
+        Todo el proceso, con soluciones si el mapa no carga, está en la guía
+        <a href="/guias/como-conectarse/">cómo entrar a un servidor comunitario de CS2</a>.
+      </p>
+
+      <h2>Primeros comandos</h2>
+      <table>
+        <thead><tr><th>Comando</th><th>Para qué sirve</th></tr></thead>
+        <tbody>
+          <tr><td><code>!help</code></td><td>Menú con todos los comandos útiles: eliges uno y se ejecuta.</td></tr>
+          <tr><td><code>!rtv</code> / <code>!nominate</code></td><td>Votar un cambio de mapa / proponer uno para la votación.</td></tr>
+          <tr><td><code>!r</code></td><td>Volver al inicio del recorrido.</td></tr>
+          <tr><td><code>!store</code></td><td>Abrir la tienda.</td></tr>
+          <tr><td><code>!logros</code></td><td>Ver tus logros y lo que te falta para el siguiente.</td></tr>
+        </tbody>
+      </table>
+
+      <h2>Cuándo hay más gente</h2>
+      <p>
+        Los servidores están en Europa, así que desde España y el resto de Europa se juega con buen ping; desde
+        América también se puede, aunque con algo más de latencia. Suele haber más movimiento por la tarde y la noche
+        (hora peninsular española): en Minigames, sobre todo entre las 19:00 y las 22:00; en Surf, de 18:00 a
+        medianoche y algo más los fines de semana. Si quieres jugar con más gente, en
+        <a href="https://discord.gg/HSMZT6njnk" target="_blank" rel="noopener">Discord</a> se queda para entrar juntos.
+      </p>
+
+      <h2>Normas</h2>
+      <p>
+        Las de siempre: nada de insultos ni de trampas, y no estropear la partida a los demás a propósito. En
+        minigames juega gente de todos los niveles y muchos están empezando. Si alguien se salta las normas, avisa
+        a un administrador dentro del juego o en Discord.
+      </p>
+    </article>
+
+    <article class="srv-info" lang="en" data-lang-block="en" hidden>
+      <h2>What each server offers</h2>
+      <h3>Minigames · <code>cs2.randompicks.es:27015</code></h3>
+      <p>
+        The main server, for up to 20 players. Each map lasts 16 minutes and at the end players vote the next one
+        from the <a href="/mapas/">80+ maps in the rotation</a>: courses (obstacle runs split into levels),
+        multigames and arena maps, deathrun, Smash, minigolf and a few bhop and surf maps. If nobody likes the map,
+        <code>!rtv</code> starts an early vote to change it.
+      </p>
+      <p>
+        Runs are timed: your best time is saved to the <a href="/ranking/">ranking</a> and counts towards
+        <a href="/novedades/#logros">achievements</a>. Playing earns credits for the store's skins, trails and wings;
+        they are never sold for real money.
+      </p>
+      <h3>Surf · <code>cs2.randompicks.es:27016</code></h3>
+      <p>
+        Surf only, also for 20 players, with <strong>tier 1 to 3</strong> maps: from beginner-friendly ones to
+        medium difficulty, without the technical maps only experts finish. Each map lasts 20 minutes. It has a timer,
+        ranks, achievements and the same store as Minigames. When it has been empty for a while it goes back to
+        <code>surf_utopia_njv</code>, the most played surf map on the Workshop. The full list is on the
+        <a href="/mapas/#surf">maps page</a>.
+      </p>
+
+      <h2>How to join</h2>
+      <ol>
+        <li>Hit <strong>Connect</strong> on the server card. Steam will open CS2 and join directly.</li>
+        <li>
+          If that doesn't work, open CS2, enable the console in <em>Settings → Game → Enable Developer Console</em>,
+          open it with the key left of <kbd>1</kbd> (<kbd>~</kbd> on US keyboards) and type <code>connect cs2.randompicks.es:27015</code> (or <code>:27016</code> for Surf).
+        </li>
+        <li>
+          The first time you play a map, CS2 downloads it from the Workshop, so loading can take a bit longer.
+          That's normal; next time it will already be there.
+        </li>
+      </ol>
+      <p>
+        The full walkthrough, with fixes if a map doesn't load, is in our
+        <a href="/guias/como-conectarse/">guide to joining a CS2 community server</a> (in Spanish).
+      </p>
+
+      <h2>First commands</h2>
+      <table>
+        <thead><tr><th>Command</th><th>What it does</th></tr></thead>
+        <tbody>
+          <tr><td><code>!help</code></td><td>Menu with all the useful commands: pick one and it runs.</td></tr>
+          <tr><td><code>!rtv</code> / <code>!nominate</code></td><td>Vote to change the map / suggest one for the vote.</td></tr>
+          <tr><td><code>!r</code></td><td>Back to the start of the run.</td></tr>
+          <tr><td><code>!store</code></td><td>Open the store.</td></tr>
+          <tr><td><code>!logros</code></td><td>See your achievements and what's left for the next one.</td></tr>
+        </tbody>
+      </table>
+
+      <h2>When it's busiest</h2>
+      <p>
+        The servers are in Europe, so ping is good from Spain and the rest of Europe; you can also play from the
+        Americas with somewhat higher latency. It's usually busiest in the afternoon and evening (Spanish mainland
+        time): on Minigames mostly between 19:00 and 22:00, on Surf from 18:00 to midnight and a bit more at weekends.
+        To play with more people, players meet up on <a href="https://discord.gg/HSMZT6njnk" target="_blank" rel="noopener">Discord</a>.
+      </p>
+
+      <h2>Rules</h2>
+      <p>
+        The usual ones: no insults, no cheating, and don't ruin the game for others on purpose. Players of every level
+        join minigames and many are just starting. If someone breaks the rules, tell an admin in game or on Discord.
+      </p>
+    </article>
+
     <p class="rk-footnote rk-legal"><a href="/privacidad/" data-i18n="footer-privacy">Privacidad</a></p>
   </main>
 
@@ -114,6 +253,9 @@ import { SERVERS } from '../lib/servers';
       document.querySelectorAll('[data-i18n-aria-label]').forEach(function(el) {
         var key = el.getAttribute('data-i18n-aria-label');
         if (dict[key] !== undefined) el.setAttribute('aria-label', dict[key]);
+      });
+      document.querySelectorAll('[data-lang-block]').forEach(function(el) {
+        el.hidden = el.getAttribute('data-lang-block') !== lang;
       });
       var esEl = document.getElementById('lang-es');
       var enEl = document.getElementById('lang-en');
@@ -234,9 +376,11 @@ import { SERVERS } from '../lib/servers';
   .mobile-menu { display: none; flex-direction: column; padding: 16px 24px 20px; gap: 12px; border-top: 1px solid var(--border); }
   .mobile-menu a { color: var(--muted); text-decoration: none; font-weight: 500; padding: 8px 0; border-bottom: 1px solid var(--border); }
   .mobile-menu.open { display: flex; }
-  @media (max-width: 768px) {
+  @media (max-width: 1023px) {
     .nav-links { display: none; }
     .hamburger { display: flex; }
+  }
+  @media (max-width: 768px) {
     .lang-sep, .lang-inactive { display: none; }
     .lang-toggle { padding: 5px 9px; }
   }
@@ -306,9 +450,31 @@ import { SERVERS } from '../lib/servers';
   .server-card[data-state="offline"] .server-connect { background: var(--surface2); color: var(--muted); }
   .servers-hint { text-align: center; color: var(--muted); font-size: 0.85rem; margin-top: 28px; }
 
+  /* ── Texto ── */
+  .srv-info { max-width: 720px; margin: 56px auto 0; padding-top: 8px; border-top: 1px solid var(--border); }
+  .srv-info h2 { font-size: 1.4rem; margin: 36px 0 12px; color: var(--text); }
+  .srv-info h3 { font-size: 1.1rem; margin: 24px 0 8px; color: var(--text); }
+  .srv-info p, .srv-info li { color: #b9b9d0; margin-bottom: 12px; line-height: 1.65; }
+  .srv-info ol { padding-left: 22px; margin-bottom: 12px; }
+  .srv-info strong { color: var(--text); }
+  .srv-info a { color: var(--orange); text-decoration: none; }
+  .srv-info a:hover { text-decoration: underline; }
+  .srv-info code {
+    font-family: ui-monospace, 'Cascadia Code', Consolas, monospace; font-size: 0.85em; overflow-wrap: anywhere;
+    background: var(--bg2); border: 1px solid var(--border); border-radius: 6px; padding: 2px 6px; color: var(--text);
+  }
+  .srv-info kbd {
+    font-family: ui-monospace, 'Cascadia Code', Consolas, monospace; font-size: 0.82em; color: var(--text);
+    background: var(--bg3); border: 1px solid var(--border); border-bottom-width: 2px; border-radius: 5px; padding: 1px 6px;
+  }
+  .srv-info table { width: 100%; border-collapse: collapse; margin: 8px 0 20px; font-size: 0.92rem; }
+  .srv-info th, .srv-info td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--border); color: #b9b9d0; vertical-align: top; }
+  .srv-info th { color: var(--text); font-weight: 600; }
+
   @media (max-width: 600px) {
     .nav-inner { padding: 0 16px; }
     .lang-sep, .lang-inactive { display: none; }
+    .srv-info { margin-top: 40px; }
     .servers-page { padding: 92px 16px 56px; }
     .rk-header { margin-bottom: 24px; }
   }
