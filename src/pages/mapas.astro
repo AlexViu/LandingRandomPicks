@@ -1,0 +1,118 @@
+---
+import GuideLayout from '../components/GuideLayout.astro';
+import MapGrid from '../components/MapGrid.astro';
+import { MAPS_UPDATED, MINIGAMES_MAPS, SURF_MAPS, type MapCategory } from '../lib/maps';
+
+const byCategory = (c: MapCategory) => MINIGAMES_MAPS.filter((m) => m.category === c);
+const newMaps = MINIGAMES_MAPS.filter((m) => m.isNew);
+const beginnerSurf = SURF_MAPS.filter((m) => m.name === 'surf_beginner_lin' || m.name === 'surf_how2surf');
+---
+
+<GuideLayout
+  title="Mapas de los servidores de CS2: minigames, deathrun, bhop y surf — RandomPicks"
+  description={`Los ${MINIGAMES_MAPS.length + SURF_MAPS.length} mapas que pueden salir en la votación de los servidores de CS2 de RandomPicks: courses de minigames, arenas, deathrun, bhop y surf, con enlace a Steam Workshop.`}
+  heading="Mapas"
+  intro={`Estos son los mapas que pueden salir en la votación de nuestros dos servidores: ${MINIGAMES_MAPS.length} en Minigames y ${SURF_MAPS.length} en Surf. Todos son mapas de la comunidad publicados en Steam Workshop; pulsa cualquiera para ver su página, con capturas y el nombre de su autor.`}
+  updated={MAPS_UPDATED}
+>
+  <h2>Cómo se eligen</h2>
+  <p>
+    El mapa lo votáis los jugadores. Al final de cada mapa, o cuando la mayoría escribe <code>!rtv</code>, aparece
+    una votación con varios mapas al azar de esta lista. Los últimos mapas jugados no se repiten, así que la rotación
+    va cambiando aunque haya pocos jugadores.
+  </p>
+  <p>
+    Si quieres jugar uno concreto, nomínalo con <code>!nominate</code> seguido de parte de su nombre, tal y como
+    aparece en esta página: <code>!nominate sonic</code> o <code>!nominate deathrun</code>. Las reglas completas
+    de la votación están en la <a href="/guias/minigames/">guía de minigames</a>.
+  </p>
+
+  <table>
+    <thead><tr><th>Tipo</th><th>Mapas</th><th>De qué va</th></tr></thead>
+    <tbody>
+      <tr><td><a href="#courses">Courses</a></td><td>{byCategory('course').length}</td><td>Carrera de obstáculos cronometrada, por niveles.</td></tr>
+      <tr><td><a href="#arenas">Multijuegos y arenas</a></td><td>{byCategory('arenas').length}</td><td>Un minijuego distinto en cada ronda.</td></tr>
+      <tr><td><a href="#equipos">Deathrun y por equipos</a></td><td>{byCategory('equipos').length}</td><td>Unos activan trampas o disparan, otros intentan sobrevivir.</td></tr>
+      <tr><td><a href="#movimiento">Bhop y surf</a></td><td>{byCategory('movimiento').length}</td><td>Mapas de movimiento dentro del servidor de Minigames.</td></tr>
+      <tr><td><a href="#especiales">Especiales</a></td><td>{byCategory('especial').length}</td><td>Minigolf y un mapa de exploración en grupo.</td></tr>
+      <tr><td><a href="#surf">Servidor de Surf</a></td><td>{SURF_MAPS.length}</td><td>Solo surf, con cronómetro y ranking.</td></tr>
+    </tbody>
+  </table>
+
+  <h2 id="nuevos">Recién añadidos</h2>
+  <p>
+    Durante octubre han entrado {newMaps.length} mapas en la rotación de Minigames. Hay de todo: tres de deathrun
+    (uno de ellos, versión Halloween), el minigolf, el mapa de cañones de Minecraft y una buena tanda de courses
+    portados de CS:GO, como <code>mg_mario_journey</code>, <code>mg_bobiii_reborn</code> o <code>mg_castle_course</code>.
+    Llevan la etiqueta <strong>Nuevo</strong> también en el resto de la página.
+  </p>
+  <MapGrid maps={newMaps} />
+
+  <h2 id="courses">Courses</h2>
+  <p>
+    Son la mayoría de la lista. Un course es una carrera de obstáculos dividida en niveles: saltos entre plataformas,
+    suelos que se rompen, láseres, laberintos… Al terminar un nivel se abre el paso al siguiente, y el cronómetro
+    del servidor guarda tu tiempo para el <a href="/ranking/">ranking</a>.
+  </p>
+  <ul>
+    <li><strong>Si te caes o te quedas atascado</strong>, <code>!r</code> te devuelve al inicio del recorrido y <code>!kill</code> te hace reaparecer.</li>
+    <li><strong>Algunos courses tienen bonus</strong>: rutas alternativas más difíciles que cuentan aparte y desbloquean <a href="/novedades/#logros">logros</a>.</li>
+    <li><strong>Muchos son clásicos de CS:GO</strong> portados a CS2 por la comunidad, como <code>mg_sonic_course_v2</code> o <code>mg_metal_course_v3</code>. En la página de Workshop de cada uno sale quién lo hizo y quién lo portó.</li>
+  </ul>
+  <MapGrid maps={byCategory('course')} />
+
+  <h2 id="arenas">Multijuegos y arenas</h2>
+  <p>
+    En estos mapas cada ronda es un minijuego diferente: duelos con un arma al azar, carreras, esquivar, patinar sobre
+    hielo, romper el suelo bajo los rivales… El último en pie gana la ronda. Son los mejores mapas cuando hay mucha gente,
+    porque se juega todo el rato contra los demás y no contra el cronómetro.
+  </p>
+  <MapGrid maps={byCategory('arenas')} />
+
+  <h2 id="equipos">Deathrun y por equipos</h2>
+  <p>
+    En los <strong>deathrun</strong> un jugador controla las trampas del recorrido mientras el resto intenta llegar al
+    final sin morir; quien llega a la meta suele poder ir a por el que pone las trampas. En los mapas <strong>Smash</strong>
+    hay que aguantar 60 segundos esquivando los bloques que caen sobre las plataformas (en el de Minecraft los disparan
+    los terroristas con cañones) antes de la ronda final.
+  </p>
+  <MapGrid maps={byCategory('equipos')} />
+
+  <h2 id="movimiento">Bhop y surf en Minigames</h2>
+  <p>
+    Aunque el surf tiene su propio servidor, en la rotación de Minigames también entran algunos mapas de bhop y surf
+    para cambiar de ritmo, con el mismo cronómetro que los courses. Si aún no dominas los strafes, la
+    <a href="/guias/bhop/">guía de bhop</a> lo explica paso a paso.
+  </p>
+  <MapGrid maps={byCategory('movimiento')} />
+
+  <h2 id="especiales">Especiales</h2>
+  <p>
+    <strong>Minigolf KraKer</strong> es un minigolf de verdad dentro de CS2: mantén <kbd>E</kbd> (o el clic izquierdo)
+    para cargar el golpe y suelta para tirar; el clic derecho devuelve la bola a su última posición y <kbd>R</kbd> te
+    lleva al inicio del hoyo. En <strong>mg_backrooms_lost</strong> hay que encontrar en grupo cinco documentos escondidos
+    por el mapa para abrir el paso al siguiente nivel.
+  </p>
+  <MapGrid maps={byCategory('especial')} />
+
+  <h2 id="surf">Servidor de Surf</h2>
+  <p>
+    El servidor de Surf (<code>cs2.randompicks.es:27016</code>) solo tiene mapas de surf, ordenados aquí de más a
+    menos jugados en Workshop. Los tres primeros, <code>surf_utopia_njv</code>, <code>surf_kitsune</code> y
+    <code>surf_boreas</code>, superan cada uno las 800.000 suscripciones: son los clásicos que casi todo el mundo
+    ha jugado alguna vez. Cuando el servidor se queda vacío media hora, vuelve solo a <code>surf_utopia_njv</code>.
+  </p>
+  <p>
+    Si es tu primera vez, empieza por los dos mapas pensados para aprender
+    ({beginnerSurf.map((m, i) => <>{i > 0 && ' y '}<code>{m.name}</code></>)}) y lee la
+    <a href="/guias/surf/">guía de surf</a>, que explica cómo mantenerte en la rampa y coger velocidad.
+  </p>
+  <MapGrid maps={SURF_MAPS} />
+
+  <h2>¿Echas en falta algún mapa?</h2>
+  <p>
+    La lista cambia: quitamos los mapas que fallan o que nadie vota y añadimos los que nos pedís. Si hay un mapa de
+    Workshop que te gustaría jugar, pásanos el enlace en <a href="https://discord.gg/HSMZT6njnk" target="_blank" rel="noopener">Discord</a>.
+    Los cambios importantes los contamos en <a href="/novedades/">novedades</a>.
+  </p>
+</GuideLayout>

@@ -3,6 +3,9 @@ import Layout from '../layouts/Layout.astro';
 import AdBanner from '../components/AdBanner.astro';
 import Analytics from '../components/Analytics.astro';
 import { AD_SLOTS } from '../lib/ads';
+import { NEWS } from '../lib/news';
+
+const latestNews = NEWS.slice(0, 3);
 
 const modes = [
   {
@@ -107,12 +110,13 @@ const ranks = [
         <img src="/random_picks_logo.jpg" alt="RandomPicks" style="height:44px;width:72px;object-fit:cover;object-position:center;border-radius:8px;display:block;" />
       </a>
       <ul class="nav-links">
-        <li><a href="#" data-i18n="nav-home">Inicio</a></li>
         <li><a href="/servidores/" data-i18n="nav-servers">Servidores</a></li>
         <li><a href="#modos" data-i18n="nav-modos">Modos</a></li>
         <li><a href="#progresion" data-i18n="nav-progression">Progresión</a></li>
         <li><a href="#faq" data-i18n="nav-faq">FAQ</a></li>
         <li><a href="/guias/" data-i18n="nav-guides">Guías</a></li>
+        <li><a href="/mapas/" data-i18n="nav-maps">Mapas</a></li>
+        <li><a href="/novedades/" data-i18n="nav-news">Novedades</a></li>
         <li><a href="/ranking/" data-i18n="nav-ranking">Ranking</a></li>
         <li><a href="https://discord.gg/HSMZT6njnk" target="_blank" rel="noopener" class="nav-discord">Discord</a></li>
         <li><a href="https://ko-fi.com/randompicks" target="_blank" rel="noopener" class="nav-kofi" data-i18n="nav-kofi">☕ Apóyanos</a></li>
@@ -136,6 +140,8 @@ const ranks = [
       <a href="#progresion" data-i18n="nav-progression">Progresión</a>
       <a href="#faq" data-i18n="nav-faq">FAQ</a>
       <a href="/guias/" data-i18n="nav-guides">Guías</a>
+      <a href="/mapas/" data-i18n="nav-maps">Mapas</a>
+      <a href="/novedades/" data-i18n="nav-news">Novedades</a>
       <a href="/ranking/" data-i18n="nav-ranking">Ranking</a>
       <a href="https://discord.gg/HSMZT6njnk" target="_blank" rel="noopener">Discord</a>
     </div>
@@ -292,6 +298,30 @@ const ranks = [
     </div>
   </section>
 
+  <!-- NOVEDADES -->
+  <section class="section section-news" id="novedades">
+    <div class="container">
+      <div class="section-header">
+        <div class="section-tag" data-i18n="news-tag">NOVEDADES</div>
+        <h2 class="section-title" data-i18n="news-title">Lo último en el servidor</h2>
+        <p class="section-sub" data-i18n="news-sub">Mapas nuevos, logros y cambios recientes.</p>
+      </div>
+      <div class="news-grid">
+        {latestNews.map((n, i) => (
+          <a class="news-card" href={`/novedades/#${n.slug}`}>
+            <time class="news-date" datetime={n.date} data-i18n={`news-${i}-date`} data-en={n.dateLabelEn}>{n.dateLabel}</time>
+            <h3 class="news-name" data-i18n={`news-${i}-name`} data-en={n.titleEn}>{n.title}</h3>
+            <p class="news-summary" data-i18n={`news-${i}-summary`} data-en={n.summaryEn}>{n.summary}</p>
+          </a>
+        ))}
+      </div>
+      <div class="news-links">
+        <a href="/novedades/" data-i18n="news-all">Todas las novedades →</a>
+        <a href="/mapas/" data-i18n="news-maps">Ver los mapas →</a>
+      </div>
+    </div>
+  </section>
+
   <!-- PROGRESIÓN -->
   <section class="section section-alt" id="progresion">
     <div class="container">
@@ -430,6 +460,8 @@ const ranks = [
           <a href="#" data-i18n="nav-home">Inicio</a>
           <a href="#faq">FAQ</a>
           <a href="/guias/" data-i18n="nav-guides">Guías</a>
+          <a href="/mapas/" data-i18n="nav-maps">Mapas</a>
+          <a href="/novedades/" data-i18n="nav-news">Novedades</a>
           <a href="/ranking/">Ranking</a>
           <a href="https://discord.gg/HSMZT6njnk" target="_blank" rel="noopener">Discord</a>
           <a href="/privacidad/" data-i18n="footer-privacy">Privacidad</a>
@@ -446,7 +478,9 @@ const ranks = [
     var t = {
       es: {
         'ad-label': 'Publicidad', 'footer-privacy': 'Privacidad',
-        'nav-home': 'Inicio', 'nav-modos': 'Modos', 'nav-progression': 'Progresión', 'nav-faq': 'FAQ', 'nav-ranking': 'Ranking', 'nav-kofi': '☕ Apóyanos', 'nav-servers': 'Servidores', 'nav-guides': 'Guías',
+        'nav-home': 'Inicio', 'nav-modos': 'Modos', 'nav-progression': 'Progresión', 'nav-faq': 'FAQ', 'nav-ranking': 'Ranking', 'nav-kofi': '☕ Apóyanos', 'nav-servers': 'Servidores', 'nav-guides': 'Guías', 'nav-maps': 'Mapas', 'nav-news': 'Novedades',
+        'news-tag': 'NOVEDADES', 'news-title': 'Lo último en el servidor', 'news-sub': 'Mapas nuevos, logros y cambios recientes.',
+        'news-all': 'Todas las novedades →', 'news-maps': 'Ver los mapas →',
         'hero-badge': 'ROL DE FUNDADOR DISPONIBLE — PLAZAS LIMITADAS',
         'hero-title': 'El servidor CS2 de la<br /><span class="title-highlight"><span class="title-text">comunidad hispanohablante</span><span class="title-underline"></span></span>',
         'hero-sub': 'Minigames, Bhop con rankings y tienda de skins — todo gratis. Arrancamos ahora y los primeros que entren consiguen el rol de fundador en Discord.',
@@ -508,7 +542,9 @@ const ranks = [
       },
       en: {
         'ad-label': 'Advertisement', 'footer-privacy': 'Privacy',
-        'nav-home': 'Home', 'nav-modos': 'Modes', 'nav-progression': 'Progression', 'nav-faq': 'FAQ', 'nav-ranking': 'Ranking', 'nav-kofi': '☕ Support us', 'nav-servers': 'Servers', 'nav-guides': 'Guides',
+        'nav-home': 'Home', 'nav-modos': 'Modes', 'nav-progression': 'Progression', 'nav-faq': 'FAQ', 'nav-ranking': 'Ranking', 'nav-kofi': '☕ Support us', 'nav-servers': 'Servers', 'nav-guides': 'Guides', 'nav-maps': 'Maps', 'nav-news': 'News',
+        'news-tag': 'NEWS', 'news-title': 'Latest on the server', 'news-sub': 'New maps, achievements and recent changes.',
+        'news-all': 'All news →', 'news-maps': 'See the maps →',
         'hero-badge': 'FOUNDER ROLE AVAILABLE — LIMITED SPOTS',
         'hero-title': 'The CS2 server for the<br /><span class="title-highlight"><span class="title-text">Spanish-speaking community</span><span class="title-underline"></span></span>',
         'hero-sub': 'Minigames, Bhop with rankings and skin shop — all free. We just launched and the first to join get the founder role on Discord.',
@@ -570,6 +606,12 @@ const ranks = [
       },
     };
 
+    /* Novedades: el texto en español está en el HTML y el inglés en data-en (vienen de src/lib/news.ts) */
+    document.querySelectorAll('.news-card [data-en]').forEach(function(el) {
+      var key = el.getAttribute('data-i18n');
+      t.es[key] = el.textContent;
+      t.en[key] = el.getAttribute('data-en');
+    });
 
     function applyLang(lang) {
       var dict = t[lang];
@@ -667,7 +709,7 @@ const ranks = [
     height: 64px; display: flex; align-items: center; justify-content: space-between;
   }
   .logo-img-link { display: flex; align-items: center; text-decoration: none; }
-  .nav-links { display: flex; gap: 28px; list-style: none; }
+  .nav-links { display: flex; gap: 22px; list-style: none; }
   .nav-links a { color: var(--muted); text-decoration: none; font-size: 0.88rem; font-weight: 500; transition: color 0.2s; letter-spacing: 0.02em; }
   .nav-links a:hover { color: var(--text); }
   .nav-discord { color: var(--discord) !important; border: 1px solid var(--discord); padding: 5px 14px; border-radius: 6px; transition: background 0.2s !important; }
@@ -693,9 +735,11 @@ const ranks = [
   .mobile-menu { display: none; flex-direction: column; padding: 16px 24px 20px; gap: 12px; border-top: 1px solid var(--border); }
   .mobile-menu a { color: var(--muted); text-decoration: none; font-weight: 500; padding: 8px 0; border-bottom: 1px solid var(--border); }
   .mobile-menu.open { display: flex; }
-  @media (max-width: 768px) {
+  @media (max-width: 1023px) {
     .nav-links { display: none; }
     .hamburger { display: flex; }
+  }
+  @media (max-width: 768px) {
     .lang-sep, .lang-inactive { display: none; }
     .lang-toggle { padding: 5px 9px; }
   }
@@ -850,6 +894,23 @@ const ranks = [
   .mode-arrow { margin-top: 20px; color: var(--orange); opacity: 0; transform: translateX(-8px); transition: opacity 0.25s, transform 0.25s; }
   .mode-card:hover .mode-arrow { opacity: 1; transform: translateX(0); }
 
+  /* ── NEWS ── */
+  .section-news { padding-top: 0; }
+  .news-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
+  .news-card {
+    display: flex; flex-direction: column; gap: 8px; text-decoration: none;
+    background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 24px;
+    transition: border-color 0.25s, transform 0.25s;
+  }
+  .news-card:hover { border-color: rgba(255,107,43,0.4); transform: translateY(-4px); }
+  .news-card:focus-visible { outline: 2px solid var(--orange); outline-offset: 2px; }
+  .news-date { font-size: 0.75rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--orange); }
+  .news-name { font-size: 1.2rem; color: var(--text); }
+  .news-summary { font-size: 0.875rem; color: var(--muted); line-height: 1.6; }
+  .news-links { display: flex; justify-content: center; flex-wrap: wrap; gap: 12px 32px; margin-top: 28px; }
+  .news-links a { color: var(--orange); text-decoration: none; font-weight: 600; font-size: 0.95rem; }
+  .news-links a:hover { text-decoration: underline; }
+
   /* ── PROGRESSION ── */
   .prog-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; }
   .prog-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 32px; }
@@ -921,7 +982,7 @@ const ranks = [
   .footer-inner { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 24px; }
   .footer-logo { height: 48px; width: 78px; object-fit: cover; object-position: center; border-radius: 10px; opacity: 0.9; }
   .footer-text { font-size: 0.92rem; color: var(--muted); }
-  .footer-links { display: flex; gap: 28px; align-items: center; }
+  .footer-links { display: flex; flex-wrap: wrap; gap: 12px 28px; align-items: center; }
   .footer-links a { font-size: 0.92rem; color: var(--muted); text-decoration: none; transition: color 0.2s; }
   .footer-links a:hover { color: var(--text); }
   .footer-ip { font-family: 'Courier New', monospace; font-size: 0.88rem; color: var(--orange); opacity: 0.8; }
