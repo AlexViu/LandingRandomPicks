@@ -15,6 +15,16 @@ export interface NewsItem {
 
 export const NEWS: NewsItem[] = [
   {
+    slug: 'tercera-persona',
+    date: '2026-11-03',
+    dateLabel: '3 de noviembre de 2026',
+    dateLabelEn: 'November 3, 2026',
+    title: 'Tercera persona en los dos servidores',
+    titleEn: 'Third person on both servers',
+    summary: 'Con !thp ves a tu personaje desde detrás. La cámara sigue al ratón y no atraviesa las paredes.',
+    summaryEn: 'Use !thp to see your character from behind. The camera follows your mouse and does not go through walls.',
+  },
+  {
     slug: 'mapas-octubre',
     date: '2026-10-28',
     dateLabel: 'Octubre de 2026',

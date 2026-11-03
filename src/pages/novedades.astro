@@ -10,16 +10,38 @@ const halloweenMaps = MINIGAMES_MAPS.filter((m) => /halloween/i.test(m.name));
 
 <GuideLayout
   title="Novedades de los servidores de CS2 — RandomPicks"
-  description="Qué ha cambiado en los servidores de CS2 de RandomPicks: mapas nuevos, logros, la tienda dentro del HUD, el menú de ayuda y el evento de Halloween."
+  description="Qué ha cambiado en los servidores de CS2 de RandomPicks: tercera persona, mapas nuevos, logros, la tienda dentro del HUD, el menú de ayuda y el evento de Halloween."
   heading="Novedades"
   intro="Lo último que hemos añadido a los servidores, de lo más reciente a lo más antiguo. Si algo no funciona como se cuenta aquí, avísanos en Discord."
-  updated="29 de octubre de 2026"
+  updated="3 de noviembre de 2026"
 >
   <ul class="news-toc">
     {NEWS.map((n) => (
       <li><a href={`#${n.slug}`}>{n.title}</a> <span class="news-date">· {n.dateLabel}</span></li>
     ))}
   </ul>
+
+  <section id="tercera-persona">
+    <h2>{news['tercera-persona'].title}</h2>
+    <p class="news-date"><time datetime={news['tercera-persona'].date}>{news['tercera-persona'].dateLabel}</time> · Minigames y Surf</p>
+    <p>
+      Ahora puedes jugar en <strong>tercera persona</strong>: escribe <code>!thp</code> en el chat (también vale
+      <code>!3p</code> o <code>!thirdperson</code>) y la cámara se coloca detrás de tu personaje. Vuelve a escribirlo
+      para regresar a primera persona. También está en el menú de <code>!help</code>.
+    </p>
+    <ul>
+      <li><strong>La cámara sigue al ratón</strong> y gira contigo, así que puedes moverte y saltar con normalidad.</li>
+      <li><strong>No atraviesa las paredes</strong>: si te pegas a una, la cámara se acerca para no meterse dentro.</li>
+      <li><strong>La distancia la eliges tú</strong> con <code>!thpdist</code> y un número entre 50 y 200, por ejemplo <code>!thpdist 150</code>.</li>
+      <li><strong>Al morir vuelves a primera persona</strong> para ver bien al resto. Cuando reapareces, la tercera persona se activa sola.</li>
+    </ul>
+    <p>
+      Es ideal para lucir las skins, estelas y alas de la <a href="#tienda">tienda</a>. Para apuntar con precisión,
+      mejor la primera persona: los disparos siguen saliendo de los ojos de tu personaje, no del centro de la cámara.
+      De vez en cuando, los administradores pueden poner a todo el servidor en tercera persona en alguna ronda. Mientras dure,
+      no se puede quitar.
+    </p>
+  </section>
 
   <section id="mapas-octubre">
     <h2>{news['mapas-octubre'].title}</h2>
