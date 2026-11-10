@@ -13,6 +13,10 @@
 // contenido propio (ranking, servidores, privacidad), así que no les pongas banner.
 export const ADSENSE_CLIENT = 'ca-pub-2583156431916553';
 
+// A-Ads (aads.com): mientras AdSense no apruebe el sitio, los mismos huecos pintan
+// este bloque en su lugar. Vacío = vuelven los bloques de AdSense.
+export const AADS_UNIT = '2461577';
+
 export const AD_SLOTS = {
   landing: '3962141679',
   guias: '3962141679',
