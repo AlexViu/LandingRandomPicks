@@ -1,6 +1,8 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import Analytics from '../components/Analytics.astro';
+import AdBanner from '../components/AdBanner.astro';
+import { AD_SLOTS } from '../lib/ads';
 import { SERVERS } from '../lib/servers';
 ---
 
@@ -221,6 +223,8 @@ import { SERVERS } from '../lib/servers';
         join minigames and many are just starting. If someone breaks the rules, tell an admin in game or on Discord.
       </p>
     </article>
+
+    <AdBanner unit={AD_SLOTS.landing} />
 
     <p class="rk-footnote rk-legal"><a href="/privacidad/" data-i18n="footer-privacy">Privacidad</a></p>
   </main>

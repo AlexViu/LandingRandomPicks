@@ -1,6 +1,8 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import Analytics from '../components/Analytics.astro';
+import AdBanner from '../components/AdBanner.astro';
+import { AD_SLOTS } from '../lib/ads';
 import { fetchAchievementsRank, fetchAchievementsTop, fetchGlobalTop, fetchMapTop, fetchMaps, fetchPlayerPbOnMap, fetchPlayerRank } from '../lib/ranking';
 import type { MapRow } from '../lib/ranking';
 
@@ -247,6 +249,8 @@ Astro.response.headers.set('Cache-Control', 'public, max-age=60');
       <span data-i18n="rk-footnote">Se actualiza cada minuto · Conéctate y entra en el ranking:</span>
       <code>connect cs2.randompicks.es:27015</code>
     </p>
+    <AdBanner unit={AD_SLOTS.landing} />
+
     <p class="rk-footnote rk-legal"><a href="/privacidad/" data-i18n="footer-privacy">Privacidad</a></p>
   </main>
 
